@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>WebSocket Example</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue-select@3.20.0/dist/vue-select.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        .table td {
+            padding: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <b-card>
+            <section class="d-flex">
+                <b-card class="d-flex flex-column" style="background-color: black; width: 100%;" no-gutters>
+                    <b-row xl="15" sm="12" class="mb-1">
+                        <b-col cols="12" md="9" class="mb-md-0 mb-2">
+                            <!--Button Atas-->
+                            <b-button class="mr-1" variant="secondary" v-ripple.400="'rgba(113, 102, 240, 0.15)'"
+                                v-b-modal.modal-default>
+                                <span style="color: yellow;">{{ selectedwires }}</span>
+                            </b-button>
+                            <b-button class="mr-1" variant="secondary" v-ripple.400="'rgba(113, 102, 240, 0.15)'"
+                                v-b-modal.modal-default2>
+                                <span style="color: yellow;">{{ selectedgain }}</span>
+                            </b-button>
+                            <b-button class="mr-1" variant="secondary" v-ripple.400="'rgba(113, 102, 240, 0.15)'"
+                                v-b-modal.modal-default3>
+                                <span style="color: yellow;">{{ selectedspeed }}</span>
+                            </b-button>
+                            <b-button class="mr-1" variant="secondary" v-ripple.400="'rgba(113, 102, 240, 0.15)'"
+                                v-b-modal.modal-default5>
+                                <span style="color: yellow;">{{ selectedpace }}</span>
+                            </b-button>
+                        </b-col>
+
+                        <!--Modal-->
+                        <b-modal id="modal-default" cancel-title="Close" ok-title="Accept" centered
+                            title="Select Wires">
+                            <b-form-radio-group v-model="selectedwires" :options="optionswires" value-field="item"
+                                text-field="name" disabled-field="notEnabled" class="demo-inline-spacing" />
+                            <b-card-text class="mt-1 mb-0">
+                                Selected: <strong>{{ selectedwires }}</strong>
+                            </b-card-text>
+                        </b-modal>
+                        <b-modal id="modal-default2" cancel-title="Close" ok-title="Accept" centered
+                            title="Select Gain">
+                            <b-form-radio-group v-model="selectedgain" :options="optionsgain" value-field="item"
+                                text-field="name" disabled-field="notEnabled" class="demo-inline-spacing" />
+                            <b-card-text class="mt-1 mb-0">
+                                Selected: <strong>{{ selectedgain }}</strong>
+                            </b-card-text>
+                        </b-modal>
+                        <b-modal id="modal-default3" cancel-title="Close" ok-title="Accept" centered
+                            title="Select Speed">
+                            <b-form-radio-group v-model="selectedspeed" :options="optionsspeed" value-field="item"
+                                text-field="name" disabled-field="notEnabled" class="demo-inline-spacing" />
+                            <b-card-text class="mt-1 mb-0">
+                                Selected: <strong>{{ selectedspeed }}</strong>
+                            </b-card-text>
+                        </b-modal>
+                        <b-modal id="modal-default5" cancel-title="Close" ok-title="Accept" centered
+                            title="Select Pace">
+                            <b-form-radio-group v-model="selectedpace" :options="optionspace" value-field="item"
+                                text-field="name" disabled-field="notEnabled" class="demo-inline-spacing" />
+                            <b-card-text class="mt-1 mb-0">
+                                Selected: <strong>{{ selectedpace }}</strong>
+                            </b-card-text>
+                        </b-modal>
+
+                        <!--Chart-->
+                        <b-col cols="12" md="9" class="mb-md-0 mb-2">
+                            <div v-if="selectedwires === '10 Wires'" class="d-flex flex-wrap">
+                                <div class="d-flex flex-column mt-1">
+                                    <b-row v-for="(canvas, index) in leftCanvasData10" :key="index"
+                                        class="position-relative">
+                                        <b-col>
+                                            <h5 style="margin-top: 35px; color: white; position: absolute; left: 0px;">
+                                                {{
+                                                leadLabels[index] }}</h5>
+                                            <div
+                                                style="border-right: 1px solid white; height: 80%; position: absolute; right: 400px;">
+                                            </div>
+                                        </b-col>
+                                        <canvas :id="`signalCanvas${index + 1}`" :width="canvas.width"
+                                            :height="canvas.height" style="margin-left: 50px;"></canvas>
+                                    </b-row>
+                                </div>
+                                <div class="d-flex flex-column mt-1" style="margin-left: 90px;">
+                                    <b-row v-for="(canvas, index) in rightCanvasData10" :key="index"
+                                        class="position-relative">
+                                        <b-col>
+                                            <h5 style="margin-top: 35px; color: white; position: absolute; left: 0px;">
+                                                V{{
+                                                index + 1 }}</h5>
+                                            <div
+                                                style="border-right: 1px solid white; height: 80%; position: absolute; right: 400px;">
+                                            </div>
+                                        </b-col>
+                                        <canvas :id="`signalCanvas${index + 7}`" :width="canvas.width"
+                                            :height="canvas.height" style="margin-left: 50px;"></canvas>
+                                    </b-row>
+                                </div>
+                            </div>
+                            <div v-else-if="selectedwires === '5 Wires'" class="d-flex flex-wrap">
+                                <div class="d-flex flex-column mt-1">
+                                    <b-row v-for="(canvas, index) in leftCanvasData5" :key="index"
+                                        class="position-relative">
+                                        <b-col>
+                                            <h5 style="margin-top: 35px; color: white; position: absolute; left: 0px;">
+                                                {{
+                                                leadLabels5left[index] }}</h5>
+                                            <div
+                                                style="border-right: 1px solid white; height: 80%; position: absolute; right: 400px;">
+                                            </div>
+                                        </b-col>
+                                        <canvas :id="`signalCanvas${index + 1}`" :width="canvas.width"
+                                            :height="canvas.height" class="ml-2" style="margin-left: 50px;"></canvas>
+                                    </b-row>
+                                </div>
+                                <div class="d-flex flex-column mt-1" style="margin-left: 90px;">
+                                    <b-row v-for="(canvas, index) in rightCanvasData5" :key="index"
+                                        class="position-relative">
+                                        <b-col>
+                                            <h5 style="margin-top: 35px; color: white; position: absolute; left: 0px;">
+                                                {{
+                                                leadLabels5right[index] }}</h5>
+                                            <div
+                                                style="border-right: 1px solid white; height: 80%; position: absolute; right: 400px;">
+                                            </div>
+                                        </b-col>
+                                        <canvas :id="`signalCanvas${index + 5}`" :width="canvas.width"
+                                            :height="canvas.height" class="ml-2" style="margin-left: 50px;"></canvas>
+                                    </b-row>
+                                </div>
+                            </div>
+                            <!-- <div v-else-if="selectedwires === '3 Wires'">
+                                <div class="mt-3">
+                                    <canvas id="signalCanvas13" width="1200" height="900"></canvas>
+                                </div>
+                            </div> -->
+
+                        </b-col>
+
+                        <!--Table-->
+                        <b-col cols="12" md="3" class="mb-md-0 mb-2">
+                            <table class="table"
+                                style="width: 100%; font-size: 18px; color: #00fafc; margin: 0; background-color: black;"
+                                cellpadding="10">
+                                <tbody>
+                                    <tr>
+                                        <td style="text-align: center; vertical-align: middle">
+                                            Device Code : {{ items.DeviceCode }}
+                                            <br>
+                                            Patient Name : {{ items.PatientName }}
+                                            <br>
+                                            Age : {{ items.PatientAge }}
+                                            <br>
+                                            Gender : {{ items.PatientGender }}
+                                            <br>
+                                            National Code : {{ items.PatientNationalCode }}
+                                            &nbsp;
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center;border-top: 1px solid #00fafc;">
+                                            HR (BPM)
+                                            <br>
+                                            <span style="color: greenyellow;">{{ items.Hr }}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center;border-top: 1px solid #00fafc;">
+                                            <div style="width: 50%;float: left;" align="center">
+                                                SpO
+                                                <sub>2</sub>
+                                                %
+                                                <br>
+                                                <span style="color: blueviolet;">{{ items.Spo2 }}</span>
+                                            </div>
+                                            <div style="width: 50%;float: left;" align="center">
+                                                PR (BPM)
+                                                <br>
+                                                <span style="color: blueviolet;">{{ items.Pr }}</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center;border-top: 1px solid #00fafc;">
+                                            NIBP (mmhg)
+                                            <br>
+                                            <span style="color: yellow;">{{ items.NibpSys }} / {{ items.NibpDias }}
+                                                ({{ items.NibpMean }})</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center;border-top: 1px solid #00fafc;">
+                                            <div style="width: 34%;float: left;vertical-align: middle" align="center">
+                                                EtCO
+                                                <sub>2</sub>
+                                                (mmhg)
+                                                <br>
+                                                <span style="color: orange;">{{ items.Etco2 }}</span>
+                                            </div>
+                                            <div style="width: 30%;float: left;vertical-align: middle" align="center">
+                                                FiCO
+                                                <sub>2</sub>
+                                                (mmhg
+                                                <br>
+                                                <span style="color: orange;">{{ items.Fico2 }}</span>
+                                            </div>
+                                            <div style="width: 35%;float: left;vertical-align: middle" align="center">
+                                                Rr (BrPM)
+                                                <br>
+                                                <span style="color: orange;">{{ items.Rr }}</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center;border-top: 1px solid #00fafc;">
+                                            <div style="width: 50%;float: left;" align="center">
+                                                Temp 1(
+                                                <sup>o</sup>
+                                                C)
+                                                <br>
+                                                <span style="color: orange;">{{ items.T1 }}</span>
+                                            </div>
+                                            <div style="width: 50%;float: left;" align="center">
+                                                Temp 2(
+                                                <sup>o</sup>
+                                                C)
+                                                <br>
+                                                <span style="color: orange;">{{ items.T2 }}</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: left;border-top: 1px solid #00fafc; padding-top: 10px;">
+                                            Description
+                                            <br>
+                                            <span style="color: white;">{{ items.Description }}</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </b-col>
+                    </b-row>
+                </b-card>
+
+                <!--Filter-->
+                <b-card class="ml-3" style="width: 20vw;">
+                    <b-col cols="12" md="12" class="mb-md-0 mb-2">
+                        <h5>Health Facilities</h5>
+                        <v-select :options="HealthCare" :reduce="(HealthCare) => HealthCare.value" label="title"
+                            v-model="select_type" placeholder="(Choose)" class="w-100" />
+                        <h5>Health Facilities</h5>
+                        <v-select :options="HealthCare" :reduce="(HealthCare) => HealthCare.value" label="title"
+                            v-model="select_type" placeholder="(Choose)" class="w-100" />
+                        <b-row xl="12" sm="12" class="mt-2">
+                            <!-- <b-col cols="12" md="12" class="mb-md-0 mb-2 d-flex align-items-end">
+                                <b-button class="sidebar-center mr-2" v-ripple.400="'rgba(113, 102, 240, 0.15)'"
+                                    variant="outline-primary">
+                                    <feather-icon icon="SearchIcon" /> Search
+                                </b-button>
+                                <b-button class="sidebar-center" v-ripple.400="'rgba(113, 102, 240, 0.15)'"
+                                    variant="outline-primary">
+                                    <feather-icon icon="SearchIcon" /> Reset
+                                </b-button>
+                            </b-col> -->
+                        </b-row>
+                    </b-col>
+                </b-card>
+            </section>
+        </b-card>
+    </div>
+    <!-- <h1>WebSocket Example</h1> -->
+    <!-- <div id="messages"></div> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-vue@2.22.0/dist/bootstrap-vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.35.5/dist/apexcharts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-apexcharts@1.6.2/dist/vue-apexcharts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-select@3.20.0/dist/vue-select.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-ripple-directive@2.0.1/dist/vue-ripple-directive.umd.min.js"></script>
+    <script>
+        const socket = new WebSocket('ws://localhost:8081');
+
+        socket.onopen = () => {
+            console.log('WebSocket connection opened');
+        };
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (app) {
+                app.items = data;
+                app.updateAllSignals();
+            }
+        };
+
+        socket.onclose = () => {
+            console.log('WebSocket connection closed');
+        };
+        Vue.use(BootstrapVue);
+
+        let app = new Vue({
+            el: '#app',
+            components: {
+                'vue-apex-charts': VueApexCharts,
+                'v-select': VueSelect.VueSelect
+            },
+            data() {
+                return {
+                    dir: false,
+                    perPage: 10,
+                    currentPage: 1,
+                    sortBy: '',
+                    sortDesc: false,
+                    sortDirection: 'asc',
+                    select_type: '',
+                    filter: null,
+                    filterOn: [],
+                    signalData: [],
+                    key: 0,
+                    params: {
+                        date_start: '',
+                        date_finish: '',
+                        type_report: ''
+                    },
+                    infoModal: {
+                        id: 'info-modal',
+                        title: '',
+                        content: '',
+                    },
+                    leadLabels: ["I", "II", "III", "aVR", "aVL", "aVF"],
+                    leadLabels5left: ["I", "II", "III", "IV"],
+                    leadLabels5right: ["aVR", "aVL", "aVF"],
+                    HealthCare: [
+                        { title: 'Health Care 1', value: '1' },
+                        { title: 'Health Care 2', value: '2' },
+                        { title: 'Health Care 3', value: '3' },
+                        { title: 'Health Care 4', value: '4' },
+                        { title: 'Health Care 5', value: '5' },
+                    ],
+                    selectedwires: '10 Wires',
+                    optionswires: [
+                        { item: '10 Wires', name: '10 Wires' },
+                        { item: '5 Wires', name: '5 Wires' },
+                        // { item: '3 Wires', name: '3 Wires' },
+                    ],
+                    selectedgain: 'Gain:10 mm/mv',
+                    optionsgain: [
+                        { item: 'Gain:1.25 mm/mv', name: '1.25 mm/mv' },
+                        { item: 'Gain:2.5 mm/mv', name: '2.5 mm/mv' },
+                        { item: 'Gain:5 mm/mv', name: '5 mm/mv' },
+                        { item: 'Gain:10 mm/mv', name: '10 mm/mv' },
+                        { item: 'Gain:20 mm/mv', name: '20 mm/mv' },
+                    ],
+                    selectedspeed: 'Speed:25 mm/s',
+                    optionsspeed: [
+                        { item: 'Speed:25 mm/mv', name: '25 mm/mv' },
+                        { item: 'Speed:50 mm/mv', name: '50 mm/mv' },
+                    ],
+                    selectedpace: 'Pace:On',
+                    optionspace: [
+                        { item: 'Pace:On', name: 'On' },
+                        { item: 'Pace:Off', name: 'Off' },
+                    ],
+                    leftCanvasData10: [
+                        { width: 345, height: 130 },
+                        { width: 345, height: 130 },
+                        { width: 345, height: 130 },
+                        { width: 345, height: 130 },
+                        { width: 345, height: 130 },
+                        { width: 345, height: 130 },
+                    ],
+                    rightCanvasData10: [
+                        { width: 345, height: 130 },
+                        { width: 345, height: 130 },
+                        { width: 345, height: 130 },
+                        { width: 345, height: 130 },
+                        { width: 345, height: 130 },
+                        { width: 345, height: 130 },
+                    ],
+                    leftCanvasData5: [
+                        { width: 345, height: 130 },
+                        { width: 345, height: 130 },
+                        { width: 345, height: 130 },
+                        { width: 345, height: 130 },
+                    ],
+                    rightCanvasData5: [
+                        { width: 345, height: 130 },
+                        { width: 345, height: 130 },
+                        { width: 345, height: 130 },
+                    ],
+                    receivedValue: 0,
+                    receivedData: null,
+                    items: {},
+                    signalBuffer: [],
+                    pixelsPerMm: 5,
+                    speedFactor: 25,
+                }
+            },
+            computed: {
+                direction() {
+                    if (store.state.appConfig.isRTL) {
+                        this.dir = true
+                        return this.dir
+                    }
+                    this.dir = false
+                    return this.dir
+                },
+                watchSelectedgain() {
+                    return this.selectedSgain;
+                }
+            },
+            methods: {
+                handleWebSocketMessage(event) {
+                    const datasocket = JSON.parse(event.data);
+                    this.receivedData = datasocket.value
+                },
+                handleReceivedValue(value) {
+                    this.receivedValue = value;
+                },
+                // async fetchData() {
+                //     try {
+                //         let token = localStorage.accessToken
+
+                //         const response = await axios.get('https://api.telemedicine.universal-iot.com/rest-uiot/v-1/telemedicine/visit/getlast', {
+                //             headers: {
+                //                 'Authorization': `Bearer ${token}`
+                //             }
+                //         });
+                //         this.items = response.data.data;
+                //     } catch (error) {
+                //         console.error('Error fetching data:', error);
+                //     }
+                // },
+                getRandomValue(min, max) {
+                    return Math.random() * (max - min) + min;
+                },
+                resetData() {
+                    this.LineChartPatient.series[0].data = [];
+                },
+                info(item, index, button) {
+                    this.infoModal.title = `Row index: ${index}`
+                    this.infoModal.content = JSON.stringify(item, null, 2)
+                    this.$root.$emit('bv::show::modal', this.infoModal.id, button)
+                },
+                resetInfoModal() {
+                    this.infoModal.title = ''
+                    this.infoModal.content = ''
+                },
+                advanceSearch(val) {
+                    this.searchTerm = val
+                },
+                generateECGWave(amplitude, frequency, offset) {
+                    const x = offset;
+                    const y = amplitude * Math.sin(frequency * x);
+                    return y / 5; // Membagi dengan 5 untuk mendapatkan rentang sekitar -1 hingga 1
+                },
+                animateSignal() {
+                    this.drawSignal(ctx, canvas, signalHeight, amplitude, frequency);
+                    requestAnimationFrame(animateSignal);
+                },
+                generateECGSignal(amplitude, frequency, offset) {
+                    let x = 0;
+                    const y = amplitude * Math.sin(frequency * x + offset);
+                    x += 0.1; // Mengatur kecepatan pergerakan sinyal
+                    return y;
+                },
+                generateSignalData() {
+                    const signalLength = 40; // Panjang setiap sinyal
+                    const signalCount = 6; // Jumlah sinyal yang akan digambar
+
+                    for (let i = 0; i < signalCount; i++) {
+                        for (let j = 0; j < signalLength; j++) {
+                            this.signalData.push(0); // Mengatur nilai sinyal menjadi 0
+                        }
+
+                        // Tambahkan jeda antara sinyal
+                        for (let j = 0; j < 10; j++) {
+                            this.signalData.push(0); // Tambahkan nilai 0 untuk jeda
+                        }
+                    }
+                },
+                drawSignalsAndGrids() {
+                    const signalHeight = 20;
+                    const signalGap = 10;
+                    const amplitude = 30;
+                    const frequency = 0.3;
+
+                    let canvasCount = 0;
+                    if (this.selectedwires === '10 Wires') {
+                        canvasCount = 12;
+                    } else if (this.selectedwires === '5 Wires') {
+                        canvasCount = 7;
+                    }
+
+                    for (let i = 0; i < canvasCount; i++) {
+                        const canvasId = `signalCanvas${i + 1}`;
+                        const canvas = document.getElementById(canvasId);
+                        const ctx = canvas.getContext('2d');
+
+                        this.drawGrid(ctx, canvas, signalHeight, signalGap);
+                        this.drawSignal(ctx, canvas, signalHeight, amplitude, frequency);
+                    }
+                },
+                drawGrid(ctx, canvas, signalHeight, signalGap) {
+                    ctx.strokeStyle = '#FA4848';
+                    ctx.lineWidth = 0.5;
+
+                    const mmPerBigSquare = 5; // 5mm per kotak besar (standar EKG)
+
+                    // Menggambar garis vertikal (waktu)
+                    for (let x = 0; x <= canvas.width; x += this.pixelsPerMm) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, 0);
+                        ctx.lineTo(x, canvas.height);
+                        if (x % (this.pixelsPerMm * mmPerBigSquare) === 0) {
+                            ctx.lineWidth = 1;
+                        } else {
+                            ctx.lineWidth = 0.5;
+                        }
+                        ctx.stroke();
+                    }
+
+                    // Menggambar garis horizontal (voltase)
+                    for (let y = 0; y <= canvas.height; y += this.pixelsPerMm) {
+                        ctx.beginPath();
+                        ctx.moveTo(0, y);
+                        ctx.lineTo(canvas.width, y);
+                        if (y % (this.pixelsPerMm * mmPerBigSquare) === 0) {
+                            ctx.lineWidth = 1;
+                        } else {
+                            ctx.lineWidth = 0.5;
+                        }
+                        ctx.stroke();
+                    }
+                },
+                drawSignal(ctx, canvas, signalHeight, frequency) {
+                    ctx.strokeStyle = 'green';
+                    ctx.lineWidth = 2;
+
+                    const mVPerMm = 0.1; // 1 mm vertikal = 0.1 mV
+                    const centerY = canvas.height / 2;
+
+                    let gainFactor;
+                    switch (this.selectedgain) {
+                        case 'Gain:1.25 mm/mv': gainFactor = 1.25; break;
+                        case 'Gain:2.5 mm/mv': gainFactor = 2.5; break;
+                        case 'Gain:5 mm/mv': gainFactor = 5; break;
+                        case 'Gain:10 mm/mv': gainFactor = 10; break;
+                        case 'Gain:20 mm/mv': gainFactor = 20; break;
+                        default: gainFactor = 10;
+                    }
+
+                    if (this.items && this.items.Signals) {
+                        const samplesPerMm = this.speedFactor / 25;
+                        let newDataPoints = this.items.Signals.filter((_, idx) => idx % samplesPerMm === 0);
+
+                        // Tambahkan pace spike jika pace diaktifkan
+                        if (this.paceOn) {
+                            newDataPoints = newDataPoints.map((value, idx) => {
+                                if (idx % this.pacePeriod === 0) {
+                                    return this.paceAmplitude;
+                                }
+                                return value;
+                            });
+                        }
+
+                        this.signalBuffer = [...newDataPoints, ...this.signalBuffer];
+
+                        if (this.signalBuffer.length > canvas.width / this.pixelsPerMm) {
+                            this.signalBuffer = this.signalBuffer.slice(0, canvas.width / this.pixelsPerMm);
+                        }
+
+                        // Hitung rata-rata sinyal untuk centering
+                        const signalMean = this.signalBuffer.reduce((sum, val) => sum + val, 0) / this.signalBuffer.length;
+
+                        ctx.beginPath();
+                        this.signalBuffer.forEach((value, index) => {
+                            const x = canvas.width - index * this.pixelsPerMm;
+                            const rawY = (value - signalMean) / (mVPerMm * gainFactor);
+                            const y = centerY - rawY * this.pixelsPerMm;
+
+                            if (index === 0) {
+                                ctx.moveTo(x, y);
+                            } else {
+                                ctx.lineTo(x, y);
+                            }
+                        });
+                        ctx.stroke();
+
+                        // Gambar garis baseline
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(0, centerY);
+                        ctx.lineTo(canvas.width, centerY);
+                        ctx.stroke();
+                    }
+                },
+                updateAllSignals() {
+                    let canvasCount = 0;
+                    if (this.selectedwires === '10 Wires') {
+                        canvasCount = 12;
+                    } else if (this.selectedwires === '5 Wires') {
+                        canvasCount = 7;
+                    }
+
+                    for (let i = 0; i < canvasCount; i++) {
+                        const canvasId = `signalCanvas${i + 1}`;
+                        const canvas = document.getElementById(canvasId);
+                        const ctx = canvas.getContext('2d');
+
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        this.drawGrid(ctx, canvas);
+                        this.drawSignal(ctx, canvas);
+                    }
+                },
+            },
+            // directives: {
+            //     'b-modal': VBModal,
+            //     Ripple
+            // },
+            watch: {
+                selectedgain() {
+                    this.updateAllSignals();
+                },
+                selectedspeed(newSpeed) {
+                    switch (newSpeed) {
+                        case 'Speed:25 mm/s':
+                            this.speedFactor = 25;
+                            break;
+                        case 'Speed:50 mm/s':
+                            this.speedFactor = 50;
+                            break;
+                        default:
+                            this.speedFactor = 25;
+                    }
+                    this.updateAllSignals();
+                },
+            },
+            mounted() {
+                this.generateSignalData();
+                this.drawSignalsAndGrids();
+
+                // Interval untuk memperbarui sinyal
+                setInterval(() => {
+                    if (this.items && this.items.Signals) {
+                        this.updateAllSignals();
+                    }
+                }, 100); // Perbarui setiap 100ms untuk animasi yang halus
+            },
+            beforeDestroy() {
+                window.removeEventListener('message', this.handleWebSocketMessage);
+            },
+        })
+    </script>
+</body>
+
+</html>
