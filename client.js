@@ -1,10 +1,6 @@
 const WebSocket = require("ws");
 
-const client = new WebSocket("ws://localhost:8081",{
-    headers : {
-        'Authorization': '123456789'
-      }
-});
+const client = new WebSocket("ws://localhost:8081");
 
 //handling the event when the connection to server succsess
 client.on("open", ()=>{
