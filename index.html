@@ -309,9 +309,7 @@
                 if (this.token) {
                     try {
                         const decoded = jwt_decode(this.token);
-                        const cookieData = decoded.cookie;
-
-                        if (new Date(cookieData.expiresAt) > new Date()) {
+                        if (decoded.exp * 1000 > Date.now()) {
                             // Token is valid, process the data
                             this.items = data.payload;
                             this.updateAllSignals();
