@@ -298,9 +298,65 @@
 
         socket.onopen = () => {
             console.log('WebSocket connection opened');
+            reconnectAttempts = 0;
+
+            // Jika ini adalah reconnect, minta token baru
             if (token) {
-                socket.send(JSON.stringify({ type: 'setToken', token: token }));
+                sendMessage("requestNewToken");
             }
+
+            socket.on("message", (message) => {
+                const data = JSON.parse(message);
+
+                if (data.type === "setToken") {
+                    token = data.token;
+                    console.log("Received new JWT token");
+
+                    try {
+                        const decoded = jwt.verify(token, JWT_SECRET);
+                        console.log("JWT verified. Cookie data:", decoded.cookie);
+                        console.log("Token expiration:", new Date(decoded.exp * 1000));
+                        console.log("Current time:", new Date());
+                        console.log("Token : ", token);
+                    } catch (error) {
+                        console.log("Invalid JWT:", error.message);
+                        if (error.name === 'TokenExpiredError') {
+                            console.log("Token expired. Requesting new token.");
+                            sendMessage("requestNewToken");
+                        } else {
+                            console.log("Invalid JWT. Requesting new token:", error.message);
+                            sendMessage("requestNewToken");
+                        }
+                    }
+                } else if (data.type === "data") {
+                    if (token) {
+                        try {
+                            const decoded = jwt.verify(token, JWT_SECRET);
+                            console.log("Token payload:", decoded);
+                            console.log("Token expiration:", new Date(decoded.exp * 1000));
+                            console.log("Current time:", new Date());
+
+                            if (decoded.exp * 1000 > Date.now()) {
+                                console.log("Valid token. Received data:", data.payload);
+                            } else {
+                                console.log("Token expired. Requesting new token.");
+                                sendMessage("requestNewToken");
+                            }
+                        } catch (error) {
+                            console.log("Invalid JWT. Requesting new token:", error.message);
+                            sendMessage("requestNewToken");
+                        }
+                    } else {
+                        console.log("No JWT token. Ignoring data.");
+                    }
+                }
+            });
+
+            socket.on("close", (code) => {
+                console.log(`Connection Lost with Code : ${code}`);
+                token = null; // Reset token on disconnect
+                reconnect();
+            });
         };
 
         socket.onmessage = (event) => {
@@ -632,6 +688,27 @@
             mounted() {
                 this.drawSignalsAndGrids();
 
+                // Create WebSocket connection
+                this.socket = new WebSocket('wss://your-websocket-server.com');
+
+                this.socket.onopen = () => {
+                    console.log('WebSocket connection opened');
+                    // Send token and cookies to the server for authentication
+                    this.socket.send(JSON.stringify({
+                        type: 'authenticate',
+                        token: this.token,
+                        cookies: this.cookies
+                    }));
+                };
+
+                this.socket.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'data') {
+                        // Process incoming data
+                        this.items = data.payload;
+                        this.updateAllSignals();
+                    }
+                };
                 // Interval untuk memperbarui sinyal
                 setInterval(() => {
                     if (this.items && this.items.Signals) {
