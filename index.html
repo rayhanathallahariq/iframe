@@ -285,8 +285,6 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue-ripple-directive@2.0.1/dist/vue-ripple-directive.umd.min.js"></script>
     <script>
-        const token = getUrlParameter('token');
-        const cookies = getUrlParameter('cookies');
         const socket = new WebSocket('ws://localhost:8081');
 
         function getUrlParameter(name) {
@@ -295,6 +293,47 @@
             var results = regex.exec(location.search);
             return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
         }
+
+        const token = getUrlParameter('token');
+        const cookies = getUrlParameter('cookies');
+
+        socket.onopen = () => {
+            console.log('WebSocket connection opened');
+            if (token) {
+                socket.send(JSON.stringify({ type: 'setToken', token: token }));
+            }
+        };
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'data') {
+                if (this.token) {
+                    try {
+                        const decoded = jwt_decode(this.token);
+                        if (decoded.exp * 1000 > Date.now()) {
+                            // Token is valid, process the data
+                            this.items = data.payload;
+                            this.updateAllSignals();
+                        } else {
+                            console.log("Token expired. Requesting new token.");
+                            socket.send(JSON.stringify({ type: 'requestNewToken' }));
+                        }
+                    } catch (error) {
+                        console.log("Invalid token. Requesting new token:", error.message);
+                        socket.send(JSON.stringify({ type: 'requestNewToken' }));
+                    }
+                } else {
+                    console.log("No token. Ignoring data.");
+                }
+            } else if (data.type === 'setToken') {
+                this.token = data.token;
+                console.log("Received new token");
+            }
+        };
+
+        socket.onclose = () => {
+            console.log('WebSocket connection closed');
+        };
         Vue.use(BootstrapVue);
 
         let app = new Vue({
@@ -594,28 +633,6 @@
             mounted() {
                 this.drawSignalsAndGrids();
 
-                // Create WebSocket connection
-                this.socket = new WebSocket('wss://your-websocket-server.com');
-
-                this.socket.onopen = () => {
-                    console.log('WebSocket connection opened');
-                    // Send token and cookies to the server for authentication
-                    this.socket.send(JSON.stringify({
-                        type: 'authenticate',
-                        token: this.token,
-                        cookies: this.cookies
-                    }));
-                };
-                console.log(this.token);
-                console.log(this.cookie);
-                this.socket.onmessage = (event) => {
-                    const data = JSON.parse(event.data);
-                    if (data.type === 'data') {
-                        // Process incoming data
-                        this.items = data.payload;
-                        this.updateAllSignals();
-                    }
-                };
                 // Interval untuk memperbarui sinyal
                 setInterval(() => {
                     if (this.items && this.items.Signals) {

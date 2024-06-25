@@ -6,7 +6,30 @@ const JWT_SECRET = "secret";
 let token = null;
 let reconnectAttempts = 0;
 const maxReconnectAttempts = 5;
+let client; // Deklarasikan variabel client di tingkat atas
 
+function sendMessage(message) {
+  if (!client || client.readyState !== WebSocket.OPEN) {
+    console.log("WebSocket not connected. Cannot send message.");
+    return;
+  }
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      if (decoded.exp * 1000 <= Date.now()) {
+        console.log("Token expired before sending message. Requesting new token.");
+        client.send("requestNewToken");
+        return;
+      }
+    } catch (error) {
+      console.log("Invalid token before sending message. Requesting new token:", error.message);
+      client.send("requestNewToken");
+      return;
+    }
+  }
+  client.send(message);
+}
 function connect() {
   const client = new WebSocket("ws://localhost:8081");
 
@@ -16,7 +39,7 @@ function connect() {
 
     // Jika ini adalah reconnect, minta token baru
     if (token) {
-      client.send("requestNewToken");
+      sendMessage("requestNewToken");
     }
 
     client.on("message", (message) => {
@@ -29,25 +52,36 @@ function connect() {
         try {
           const decoded = jwt.verify(token, JWT_SECRET);
           console.log("JWT verified. Cookie data:", decoded.cookie);
+          console.log("Token expiration:", new Date(decoded.exp * 1000));
+          console.log("Current time:", new Date());
           console.log("Token : ", token);
         } catch (error) {
           console.log("Invalid JWT:", error.message);
+          if (error.name === 'TokenExpiredError') {
+            console.log("Token expired. Requesting new token.");
+            sendMessage("requestNewToken");
+          } else {
+            console.log("Invalid JWT. Requesting new token:", error.message);
+            sendMessage("requestNewToken");
+          }
         }
       } else if (data.type === "data") {
         if (token) {
           try {
             const decoded = jwt.verify(token, JWT_SECRET);
-            const cookieData = decoded.cookie;
+            console.log("Token payload:", decoded);
+            console.log("Token expiration:", new Date(decoded.exp * 1000));
+            console.log("Current time:", new Date());
 
-            if (new Date(cookieData.expiresAt) > new Date()) {
-              console.log("Valid cookie. Received data:", data.payload);
+            if (decoded.exp * 1000 > Date.now()) {
+              console.log("Valid token. Received data:", data.payload);
             } else {
-              console.log("Cookie expired. Requesting new token.");
-              client.send("requestNewToken");
+              console.log("Token expired. Requesting new token.");
+              sendMessage("requestNewToken");
             }
           } catch (error) {
             console.log("Invalid JWT. Requesting new token:", error.message);
-            client.send("requestNewToken");
+            sendMessage("requestNewToken");
           }
         } else {
           console.log("No JWT token. Ignoring data.");
