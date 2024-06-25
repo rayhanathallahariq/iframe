@@ -606,7 +606,8 @@
                         cookies: this.cookies
                     }));
                 };
-
+                console.log(this.token);
+                console.log(this.cookie);
                 this.socket.onmessage = (event) => {
                     const data = JSON.parse(event.data);
                     if (data.type === 'data') {
