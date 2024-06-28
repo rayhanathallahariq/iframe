@@ -587,28 +587,26 @@
             mounted() {
                 this.drawSignalsAndGrids();
 
-                // Interval untuk memperbarui sinyal
                 setInterval(() => {
                     if (this.items && this.items.Signals) {
                         this.updateAllSignals();
                     }
-                }, 100); // Perbarui setiap 100ms untuk animasi yang halus
+                }, 100);
 
-                // Add this line to set up the WebSocket message handler
-                if (socket) {
-                    socket.addEventListener('message', this.handleWebSocketMessage);
+                if (window.socket) {
+                    window.socket.addEventListener('message', this.handleWebSocketMessage);
                 }
             },
             beforeDestroy() {
-                if (socket) {
-                    socket.removeEventListener('message', this.handleWebSocketMessage);
+                if (window.socket) {
+                    window.socket.removeEventListener('message', this.handleWebSocketMessage);
                 }
             },
         })
     </script>
     <script>
-        let socket;
-        let jwtToken = '';
+        window.socket = null;  // Make socket globally accessible
+        window.jwtToken = '';
         const authServerUrl = "https://monitoring.telehealth.universal-iot.com/api/chronos/GetToken";
 
         async function getJwtToken() {
@@ -616,6 +614,11 @@
                 const response = await axios.post(authServerUrl, {
                     username: "user1",
                     password: "User1!1234"
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    }
                 });
                 return response.data.Data;
             } catch (error) {
@@ -625,24 +628,24 @@
         }
 
         async function connectWebSocket() {
-            jwtToken = await getJwtToken();
-            if (!jwtToken) {
+            window.jwtToken = await getJwtToken();
+            if (!window.jwtToken) {
                 console.error("Failed to get JWT token. Cannot connect to WebSocket.");
                 return;
             }
 
-            socket = new WebSocket('wss://monitoring.telehealth.universal-iot.com/web');
+            window.socket = new WebSocket('wss://monitoring.telehealth.universal-iot.com/web');
 
-            socket.onopen = () => {
+            window.socket.onopen = () => {
                 console.log('WebSocket connection opened');
                 let deviceCode = '2123';
                 let random = '545859653';
                 let patientCode = '01234567';
-                let arg = `${deviceCode},${random},${patientCode},${jwtToken}`;
-                socket.send(arg);
+                let arg = `${deviceCode},${random},${patientCode},${window.jwtToken}`;
+                window.socket.send(arg);
             };
 
-            socket.onmessage = (event) => {
+            window.socket.onmessage = (event) => {
                 const data = JSON.parse(event.data);
                 if (app) {
                     app.items = data;
@@ -650,11 +653,11 @@
                 }
             };
 
-            socket.onclose = () => {
+            window.socket.onclose = () => {
                 console.log('WebSocket connection closed');
             };
 
-            socket.onerror = (error) => {
+            window.socket.onerror = (error) => {
                 console.error('WebSocket error:', error);
             };
         }
@@ -670,8 +673,8 @@
 
         // Set up interval for sending "Hi" message
         setInterval(() => {
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                socket.send("Hi");
+            if (window.socket && window.socket.readyState === WebSocket.OPEN) {
+                window.socket.send("Hi");
             } else {
                 reconnectWebSocket();
             }
