@@ -1,115 +1,82 @@
 const WebSocket = require("ws");
-const jwt = require("jsonwebtoken");
+const axios = require("axios");
 
-const JWT_SECRET = "secret";
+const wsUri = "wss://monitoring.telehealth.universal-iot.com/web";
+const authServerUrl = "https://monitoring.telehealth.universal-iot.com/api/chronos/GetToken";
 
-let token = null;
-let reconnectAttempts = 0;
-const maxReconnectAttempts = 5;
-let client; // Deklarasikan variabel client di tingkat atas
+let jwtToken = "";
 
-function sendMessage(message) {
-  if (!client || client.readyState !== WebSocket.OPEN) {
-    console.log("WebSocket not connected. Cannot send message.");
-    return;
-  }
-
-  if (token) {
+async function getJwtToken() {
     try {
-      const decoded = jwt.verify(token, JWT_SECRET);
-      if (decoded.exp * 1000 <= Date.now()) {
-        console.log("Token expired before sending message. Requesting new token.");
-        client.send("requestNewToken");
-        return;
-      }
+        const response = await axios.post(authServerUrl, {
+            username: "user1",
+            password: "User1!1234"
+        });
+        // console.log(response);
+        return response.data.Data;
     } catch (error) {
-      console.log("Invalid token before sending message. Requesting new token:", error.message);
-      client.send("requestNewToken");
-      return;
+        console.error("Error getting JWT token:", error);
+        return null;
     }
-  }
-  client.send(message);
 }
-function connect() {
-  const client = new WebSocket("ws://localhost:8081");
 
-  client.on("open", () => {
-    console.log("Connected to server");
-    reconnectAttempts = 0;
-
-    // Jika ini adalah reconnect, minta token baru
-    if (token) {
-      sendMessage("requestNewToken");
+async function connectWebSocket() {
+    jwtToken = await getJwtToken();
+    if (!jwtToken) {
+        console.error("Failed to get JWT token. Cannot connect to WebSocket.");
+        return;
     }
+
+    const client = new WebSocket(wsUri);
+    
+    client.on("open", () => {
+        console.log("Connected");
+        let deviceCode = `2123`;
+        let random = `545859653`;
+        let patientCode = `01234567`;
+        let arg = `${deviceCode},${random},${patientCode},${jwtToken}`;
+        console.log(arg);
+        client.send(arg);
+    });
 
     client.on("message", (message) => {
-      const data = JSON.parse(message);
+        // console.log(`Received raw message: ${message}`);
+        const obj = JSON.parse(message);
+        console.log('Parsed message:', obj);
+    });
 
-      if (data.type === "setToken") {
-        token = data.token;
-        console.log("Received new JWT token");
-
-        try {
-          const decoded = jwt.verify(token, JWT_SECRET);
-          console.log("JWT verified. Cookie data:", decoded.cookie);
-          console.log("Token expiration:", new Date(decoded.exp * 1000));
-          console.log("Current time:", new Date());
-          console.log("Token : ", token);
-        } catch (error) {
-          console.log("Invalid JWT:", error.message);
-          if (error.name === 'TokenExpiredError') {
-            console.log("Token expired. Requesting new token.");
-            sendMessage("requestNewToken");
-          } else {
-            console.log("Invalid JWT. Requesting new token:", error.message);
-            sendMessage("requestNewToken");
-          }
-        }
-      } else if (data.type === "data") {
-        if (token) {
-          try {
-            const decoded = jwt.verify(token, JWT_SECRET);
-            console.log("Token payload:", decoded);
-            console.log("Token expiration:", new Date(decoded.exp * 1000));
-            console.log("Current time:", new Date());
-
-            if (decoded.exp * 1000 > Date.now()) {
-              console.log("Valid token. Received data:", data.payload);
-            } else {
-              console.log("Token expired. Requesting new token.");
-              sendMessage("requestNewToken");
-            }
-          } catch (error) {
-            console.log("Invalid JWT. Requesting new token:", error.message);
-            sendMessage("requestNewToken");
-          }
-        } else {
-          console.log("No JWT token. Ignoring data.");
-        }
-      }
+    client.on("error", (error) => {
+        console.log(`ERROR: ${error.message}`);
     });
 
     client.on("close", (code) => {
-      console.log(`Connection Lost with Code : ${code}`);
-      token = null; // Reset token on disconnect
-      reconnect();
+        console.log(`Connection Lost with Code: ${code}`);
     });
-  });
 
-  client.on("error", (error) => {
-    console.log(`ERROR : ${error.message}`);
-    reconnect();
-  });
+
+    return client;
 }
 
-function reconnect() {
-  if (reconnectAttempts < maxReconnectAttempts) {
-    reconnectAttempts++;
-    console.log(`Attempting to reconnect (${reconnectAttempts}/${maxReconnectAttempts})...`);
-    setTimeout(connect, 5000); // Wait 5 seconds before reconnecting
-  } else {
-    console.log("Max reconnect attempts reached. Stopping.");
-  }
+let client;
+
+(async () => {
+    client = await connectWebSocket();
+    setInterval(updateWaveforms, 4000);
+    setInterval(aliveHandShake, 1000);
+})();
+
+function aliveHandShake() {
+    if (client && client.readyState === WebSocket.OPEN) {
+        client.send("Hi");
+    } else {
+        console.log("WebSocket connection is closed. Reconnecting...");
+        connectWebSocket().then(newClient => {
+            client = newClient;
+            console.log("WebSocket reconnected.");
+        });
+    }
 }
 
-connect();
+function updateWaveforms() {
+
+}

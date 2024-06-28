@@ -277,63 +277,14 @@
     <!-- <h1>WebSocket Example</h1> -->
     <!-- <div id="messages"></div> -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-vue@2.22.0/dist/bootstrap-vue.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.35.5/dist/apexcharts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue-apexcharts@1.6.2/dist/vue-apexcharts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue-select@3.20.0/dist/vue-select.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue-ripple-directive@2.0.1/dist/vue-ripple-directive.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        const socket = new WebSocket('ws://localhost:8081');
-
-        function getUrlParameter(name) {
-            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-            var results = regex.exec(location.search);
-            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-        }
-
-        const token = getUrlParameter('token');
-        const cookies = getUrlParameter('cookies');
-
-        socket.onopen = () => {
-            console.log('WebSocket connection opened');
-            if (token) {
-                socket.send(JSON.stringify({ type: 'setToken', token: token }));
-            }
-        };
-
-        socket.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.type === 'data') {
-                if (this.token) {
-                    try {
-                        const decoded = jwt_decode(this.token);
-                        if (decoded.exp * 1000 > Date.now()) {
-                            // Token is valid, process the data
-                            this.items = data.payload;
-                            this.updateAllSignals();
-                        } else {
-                            console.log("Token expired. Requesting new token.");
-                            socket.send(JSON.stringify({ type: 'requestNewToken' }));
-                        }
-                    } catch (error) {
-                        console.log("Invalid token. Requesting new token:", error.message);
-                        socket.send(JSON.stringify({ type: 'requestNewToken' }));
-                    }
-                } else {
-                    console.log("No token. Ignoring data.");
-                }
-            } else if (data.type === 'setToken') {
-                this.token = data.token;
-                console.log("Received new token");
-            }
-        };
-
-        socket.onclose = () => {
-            console.log('WebSocket connection closed');
-        };
         Vue.use(BootstrapVue);
 
         let app = new Vue({
@@ -431,8 +382,6 @@
                     signalBuffer: [],
                     pixelsPerMm: 5,
                     speedFactor: 25,
-                    token: getUrlParameter('token'),
-                    cookies: getUrlParameter('cookies'),
                 }
             },
             computed: {
@@ -449,6 +398,11 @@
                 }
             },
             methods: {
+                handleWebSocketMessage(event) {
+                    const data = JSON.parse(event.data);
+                    this.items = data;
+                    this.updateAllSignals();
+                },
                 handleWebSocketMessage(event) {
                     const datasocket = JSON.parse(event.data);
                     this.receivedData = datasocket.value
@@ -639,11 +593,89 @@
                         this.updateAllSignals();
                     }
                 }, 100); // Perbarui setiap 100ms untuk animasi yang halus
+
+                // Add this line to set up the WebSocket message handler
+                if (socket) {
+                    socket.addEventListener('message', this.handleWebSocketMessage);
+                }
             },
             beforeDestroy() {
-                window.removeEventListener('message', this.handleWebSocketMessage);
+                if (socket) {
+                    socket.removeEventListener('message', this.handleWebSocketMessage);
+                }
             },
         })
+    </script>
+    <script>
+        let socket;
+        let jwtToken = '';
+        const authServerUrl = "https://monitoring.telehealth.universal-iot.com/api/chronos/GetToken";
+
+        async function getJwtToken() {
+            try {
+                const response = await axios.post(authServerUrl, {
+                    username: "user1",
+                    password: "User1!1234"
+                });
+                return response.data.Data;
+            } catch (error) {
+                console.error("Error getting JWT token:", error);
+                return null;
+            }
+        }
+
+        async function connectWebSocket() {
+            jwtToken = await getJwtToken();
+            if (!jwtToken) {
+                console.error("Failed to get JWT token. Cannot connect to WebSocket.");
+                return;
+            }
+
+            socket = new WebSocket('wss://monitoring.telehealth.universal-iot.com/web');
+
+            socket.onopen = () => {
+                console.log('WebSocket connection opened');
+                let deviceCode = '2123';
+                let random = '545859653';
+                let patientCode = '01234567';
+                let arg = `${deviceCode},${random},${patientCode},${jwtToken}`;
+                socket.send(arg);
+            };
+
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (app) {
+                    app.items = data;
+                    app.updateAllSignals();
+                }
+            };
+
+            socket.onclose = () => {
+                console.log('WebSocket connection closed');
+            };
+
+            socket.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+        }
+
+        // Connect to WebSocket when the page loads
+        connectWebSocket();
+
+        // Reconnect function
+        function reconnectWebSocket() {
+            console.log("WebSocket connection is closed. Reconnecting...");
+            connectWebSocket();
+        }
+
+        // Set up interval for sending "Hi" message
+        setInterval(() => {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send("Hi");
+            } else {
+                reconnectWebSocket();
+            }
+        }, 1000);
     </script>
 </body>
 
