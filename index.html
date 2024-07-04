@@ -251,12 +251,9 @@
                 <!--Filter-->
                 <b-card class="ml-3" style="width: 20vw;">
                     <b-col cols="12" md="12" class="mb-md-0 mb-2">
-                        <h5>Health Facilities</h5>
-                        <v-select :options="HealthCare" :reduce="(HealthCare) => HealthCare.value" label="title"
-                            v-model="select_type" placeholder="(Choose)" class="w-100" />
-                        <h5>Health Facilities</h5>
-                        <v-select :options="HealthCare" :reduce="(HealthCare) => HealthCare.value" label="title"
-                            v-model="select_type" placeholder="(Choose)" class="w-100" />
+                        <h5>Device</h5>
+                        <v-select :options="selectDevice" :reduce="(selectDevice) => selectDevice.value" label="title"
+                            v-model="select_device" placeholder="(Choose Device)" class="w-100" />
                         <b-row xl="12" sm="12" class="mt-2">
                             <!-- <b-col cols="12" md="12" class="mb-md-0 mb-2 d-flex align-items-end">
                                 <b-button class="sidebar-center mr-2" v-ripple.400="'rgba(113, 102, 240, 0.15)'"
@@ -301,7 +298,7 @@
                     sortBy: '',
                     sortDesc: false,
                     sortDirection: 'asc',
-                    select_type: '',
+                    select_device: '',
                     filter: null,
                     filterOn: [],
                     key: 0,
@@ -318,12 +315,12 @@
                     leadLabels: ["I", "II", "III", "aVR", "aVL", "aVF"],
                     leadLabels5left: ["I", "II", "III", "IV"],
                     leadLabels5right: ["aVR", "aVL", "aVF"],
-                    HealthCare: [
-                        { title: 'Health Care 1', value: '1' },
-                        { title: 'Health Care 2', value: '2' },
-                        { title: 'Health Care 3', value: '3' },
-                        { title: 'Health Care 4', value: '4' },
-                        { title: 'Health Care 5', value: '5' },
+                    selectDevice: [
+                        { title: '2123', value: '2123' },
+                        { title: '2124', value: '2124' },
+                        { title: '2125', value: '2125' },
+                        { title: '2126', value: '2126' },
+                        { title: '2127', value: '2127' },
                     ],
                     selectedwires: '10 Wires',
                     optionswires: [
@@ -380,6 +377,20 @@
                     receivedData: null,
                     items: {},
                     signalBuffer: [],
+                    leadSignals: {
+                        'I': [],
+                        'II': [],
+                        'III': [],
+                        'aVR': [],
+                        'aVL': [],
+                        'aVF': [],
+                        'V1': [],
+                        'V2': [],
+                        'V3': [],
+                        'V4': [],
+                        'V5': [],
+                        'V6': []
+                    },
                     pixelsPerMm: 5,
                     speedFactor: 25,
                 }
@@ -402,10 +413,6 @@
                     const data = JSON.parse(event.data);
                     this.items = data;
                     this.updateAllSignals();
-                },
-                handleWebSocketMessage(event) {
-                    const datasocket = JSON.parse(event.data);
-                    this.receivedData = datasocket.value
                 },
                 resetData() {
                     this.LineChartPatient.series[0].data = [];
@@ -445,14 +452,14 @@
                         const ctx = canvas.getContext('2d');
 
                         this.drawGrid(ctx, canvas, signalHeight, signalGap);
-                        this.drawSignal(ctx, canvas, signalHeight, amplitude, frequency);
+                        this.drawSignal(ctx, canvas, signalHeight, amplitude, frequency, i); // Pass the lead index (i)
                     }
                 },
                 drawGrid(ctx, canvas, signalHeight, signalGap) {
                     ctx.strokeStyle = '#FA4848';
                     ctx.lineWidth = 0.5;
 
-                    const mmPerBigSquare = 5; // 5mm per kotak besar (standar EKG)
+                    const mmPerBigSquare = 5;
 
                     // Menggambar garis vertikal (waktu)
                     for (let x = 0; x <= canvas.width; x += this.pixelsPerMm) {
@@ -480,51 +487,44 @@
                         ctx.stroke();
                     }
                 },
-                drawSignal(ctx, canvas, signalHeight, frequency) {
+                drawSignal(ctx, canvas, signalHeight, frequency, leadIndex) {
                     ctx.strokeStyle = 'green';
                     ctx.lineWidth = 2;
 
-                    const mVPerMm = 0.1; // 1 mm vertikal = 0.1 mV
+                    const mVPerMm = 0.1;
                     const centerY = canvas.height / 2;
 
                     let gainFactor;
                     switch (this.selectedgain) {
-                        case 'Gain:1.25 mm/mv': gainFactor = 1.25; break;
-                        case 'Gain:2.5 mm/mv': gainFactor = 2.5; break;
-                        case 'Gain:5 mm/mv': gainFactor = 5; break;
-                        case 'Gain:10 mm/mv': gainFactor = 10; break;
-                        case 'Gain:20 mm/mv': gainFactor = 20; break;
+                        case 'Gain:1.25 mm/mv': gainFactor = 125; break;
+                        case 'Gain:2.5 mm/mv': gainFactor = 250; break;
+                        case 'Gain:5 mm/mv': gainFactor = 500; break;
+                        case 'Gain:10 mm/mv': gainFactor = 1000; break;
+                        case 'Gain:20 mm/mv': gainFactor = 2000; break;
                         default: gainFactor = 10;
                     }
 
                     if (this.items && this.items.Signals) {
+                        let signalData;
+                        if (this.items.Signals[leadIndex] === null || this.items.Signals[leadIndex] === undefined) {
+                            signalData = new Array(50).fill(0);
+                        } else {
+                            signalData = this.items.Signals[leadIndex];
+                        }
+
                         const samplesPerMm = this.speedFactor / 25;
-                        let newDataPoints = this.items.Signals.filter((_, idx) => idx % samplesPerMm === 0);
+                        let newDataPoints = signalData.filter((_, idx) => idx % samplesPerMm === 0);
 
-                        // Tambahkan pace spike jika pace diaktifkan
-                        if (this.paceOn) {
-                            newDataPoints = newDataPoints.map((value, idx) => {
-                                if (idx % this.pacePeriod === 0) {
-                                    return this.paceAmplitude;
-                                }
-                                return value;
-                            });
-                        }
-
+                        // Update signal buffer
                         this.signalBuffer = [...newDataPoints, ...this.signalBuffer];
-
-                        if (this.signalBuffer.length > canvas.width / this.pixelsPerMm) {
-                            this.signalBuffer = this.signalBuffer.slice(0, canvas.width / this.pixelsPerMm);
+                        if (this.signalBuffer.length > canvas.width) {
+                            this.signalBuffer = this.signalBuffer.slice(0, canvas.width);
                         }
-
-                        // Hitung rata-rata sinyal untuk centering
-                        const signalMean = this.signalBuffer.reduce((sum, val) => sum + val, 0) / this.signalBuffer.length;
 
                         ctx.beginPath();
                         this.signalBuffer.forEach((value, index) => {
-                            const x = canvas.width - index * this.pixelsPerMm;
-                            const rawY = (value - signalMean) / (mVPerMm * gainFactor);
-                            const y = centerY - rawY * this.pixelsPerMm;
+                            const x = index;
+                            const y = centerY - (value / (mVPerMm * gainFactor) * this.pixelsPerMm);
 
                             if (index === 0) {
                                 ctx.moveTo(x, y);
@@ -533,17 +533,11 @@
                             }
                         });
                         ctx.stroke();
-
-                        // Gambar garis baseline
-                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.moveTo(0, centerY);
-                        ctx.lineTo(canvas.width, centerY);
-                        ctx.stroke();
                     }
                 },
                 updateAllSignals() {
+                console.log(this.select_device);
+
                     let canvasCount = 0;
                     if (this.selectedwires === '10 Wires') {
                         canvasCount = 12;
@@ -556,11 +550,11 @@
                         const canvas = document.getElementById(canvasId);
                         const ctx = canvas.getContext('2d');
 
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);  
                         this.drawGrid(ctx, canvas);
-                        this.drawSignal(ctx, canvas);
+                        this.drawSignal(ctx, canvas, 20, 0.3, i);
                     }
-                },
+                }
             },
             // directives: {
             //     'b-modal': VBModal,
@@ -586,12 +580,11 @@
             },
             mounted() {
                 this.drawSignalsAndGrids();
-
                 setInterval(() => {
                     if (this.items && this.items.Signals) {
                         this.updateAllSignals();
                     }
-                }, 100);
+                }, 30000); // Update every 30 seconds
 
                 if (window.socket) {
                     window.socket.addEventListener('message', this.handleWebSocketMessage);
@@ -605,7 +598,7 @@
         })
     </script>
     <script>
-        window.socket = null;  // Make socket globally accessible
+        window.socket = null;
         window.jwtToken = '';
         const authServerUrl = "https://monitoring.telehealth.universal-iot.com/api/chronos/GetToken";
 
@@ -613,11 +606,10 @@
             try {
                 const response = await axios.post(authServerUrl, {
                     username: "user1",
-                    password: "User1!1234"
+                    password: "User1!1234",
                 }, {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
                     }
                 });
                 return response.data.Data;
@@ -640,16 +632,26 @@
                 console.log('WebSocket connection opened');
                 let deviceCode = '2123';
                 let random = '545859653';
-                let patientCode = '01234567';
+                let patientCode = '0';
                 let arg = `${deviceCode},${random},${patientCode},${window.jwtToken}`;
                 window.socket.send(arg);
             };
 
+            let lastUpdateTime = 0;
+            const updateInterval = 500;
+
             window.socket.onmessage = (event) => {
+                const currentTime = Date.now();
                 const data = JSON.parse(event.data);
-                if (app) {
-                    app.items = data;
-                    app.updateAllSignals();
+
+                window.latestData = data;
+
+                if (currentTime - lastUpdateTime >= updateInterval) {
+                    if (app && window.latestData) {
+                        app.items = window.latestData;
+                        app.updateAllSignals();
+                    }
+                    lastUpdateTime = currentTime;
                 }
             };
 
@@ -678,7 +680,7 @@
             } else {
                 reconnectWebSocket();
             }
-        }, 1000);
+        }, 30000); 
     </script>
 </body>
 

@@ -9,6 +9,7 @@ let jwtToken = "";
 async function getJwtToken() {
     try {
         const response = await axios.post(authServerUrl, {
+            time :  "1717610098061",
             username: "user1",
             password: "User1!1234"
         });
@@ -32,15 +33,15 @@ async function connectWebSocket() {
     client.on("open", () => {
         console.log("Connected");
         let deviceCode = `2123`;
-        let random = `545859653`;
-        let patientCode = `01234567`;
+        let random = `54585963`;
+        let patientCode = `0`;
         let arg = `${deviceCode},${random},${patientCode},${jwtToken}`;
         console.log(arg);
         client.send(arg);
-    });
+    }); 
 
+    
     client.on("message", (message) => {
-        // console.log(`Received raw message: ${message}`);
         const obj = JSON.parse(message);
         console.log('Parsed message:', obj);
     });
