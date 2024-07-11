@@ -1,606 +1,308 @@
 <!DOCTYPE html>
-<html>
+<html lang="fa">
 
 <head>
-    <title>View</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue-select@3.20.0/dist/vue-select.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <style>
-        .table td {
-            padding: 15px;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-language" content="fa" />
+    <title>Online signals</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+
+    <link rel="stylesheet" href="/Content/style2.css" />
+    <link rel="stylesheet" href="/Content/jquery-ui.css" />
+    <link rel="stylesheet" href="/Content/plugins/bootstrap-datepicker.min.css" />
+    <link rel="stylesheet" href="/Content/plugins/fileinput.min.css" />
+    <link rel="stylesheet" href="/Content/site.min.css" />
+    <link rel="stylesheet" href="/Content/onliestyles.css" />
+
+    <script src="/Scripts/libs/modernizr-2.8.3.min.js"></script>
+
+    <noscript>
+        <meta http-equiv="refresh" content="0;url=/NoScript.html">
+    </noscript>
 </head>
 
 <body>
-    <div id="app">
-        <b-card>
-            <section class="d-flex">
-                <b-card class="d-flex flex-column" style="background-color: black; width: 100%;" no-gutters>
-                    <b-row xl="15" sm="12" class="mb-1">
-                        <b-col cols="12" md="9" class="mb-md-0 mb-2">
-                            <!--Button Atas-->
-                            <b-button class="mr-1" variant="secondary" v-b-modal.modal-default>
-                                <span style="color: yellow;">{{ selectedwires }}</span>
-                            </b-button>
-                            <b-button class="mr-1" variant="secondary" v-b-modal.modal-default2>
-                                <span style="color: yellow;">{{ selectedgain }}</span>
-                            </b-button>
-                            <b-button class="mr-1" variant="secondary" v-b-modal.modal-default3>
-                                <span style="color: yellow;">{{ selectedspeed }}</span>
-                            </b-button>
-                            <b-button class="mr-1" variant="secondary" v-b-modal.modal-default5>
-                                <span style="color: yellow;">{{ selectedpace }}</span>
-                            </b-button>
-                        </b-col>
+    <div>
+        <!-- Dialogs
+        ================================================== -->
+        <div class="row">
+            <div class="col-md-12 ">
 
-                        <!--Modal-->
-                        <b-modal id="modal-default" cancel-title="Close" ok-title="Accept" centered
-                            title="Select Wires">
-                            <b-form-radio-group v-model="selectedwires" :options="optionswires" value-field="item"
-                                text-field="name" disabled-field="notEnabled" class="demo-inline-spacing" />
-                            <b-card-text class="mt-1 mb-0">
-                                Selected: <strong>{{ selectedwires }}</strong>
-                            </b-card-text>
-                        </b-modal>
-                        <b-modal id="modal-default2" cancel-title="Close" ok-title="Accept" centered
-                            title="Select Gain">
-                            <b-form-radio-group v-model="selectedgain" :options="optionsgain" value-field="item"
-                                text-field="name" disabled-field="notEnabled" class="demo-inline-spacing" />
-                            <b-card-text class="mt-1 mb-0">
-                                Selected: <strong>{{ selectedgain }}</strong>
-                            </b-card-text>
-                        </b-modal>
-                        <b-modal id="modal-default3" cancel-title="Close" ok-title="Accept" centered
-                            title="Select Speed">
-                            <b-form-radio-group v-model="selectedspeed" :options="optionsspeed" value-field="item"
-                                text-field="name" disabled-field="notEnabled" class="demo-inline-spacing" />
-                            <b-card-text class="mt-1 mb-0">
-                                Selected: <strong>{{ selectedspeed }}</strong>
-                            </b-card-text>
-                        </b-modal>
-                        <b-modal id="modal-default5" cancel-title="Close" ok-title="Accept" centered
-                            title="Select Pace">
-                            <b-form-radio-group v-model="selectedpace" :options="optionspace" value-field="item"
-                                text-field="name" disabled-field="notEnabled" class="demo-inline-spacing" />
-                            <b-card-text class="mt-1 mb-0">
-                                Selected: <strong>{{ selectedpace }}</strong>
-                            </b-card-text>
-                        </b-modal>
 
-                        <!--Chart-->
-                        <b-col cols="12" md="9" class="mb-md-0 mb-2">
-                            <div v-if="selectedwires === '10 Wires'" class="d-flex flex-wrap">
-                                <div class="d-flex flex-column mt-1">
-                                    <b-row v-for="(canvas, index) in leftCanvasData10" :key="index"
-                                        class="position-relative">
-                                        <b-col>
-                                            <h5 style="margin-top: 35px; color: white; position: absolute; left: 0px;">
-                                                {{
-                                                leadLabels[index] }}</h5>
-                                            <div
-                                                style="border-right: 1px solid white; height: 80%; position: absolute; right: 400px;">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-md-15">
+                                <div class="col-md-15">
+                                    <div class="container-online">
+                                        <div class="waveform-box">
+                                            <div class="row">
+                                                <span class="waveform-title ecg-color" id="param_name"
+                                                    style="margin-left:20px"> Name:---</span>
+                                                <span class="waveform-title ecg-color" id="param_code"
+                                                    style="margin-left:20px"> Code:---</span>
+                                                <span class="waveform-title ecg-color" id="param_wires"
+                                                    style="margin-left:20px"> Wires:---</span>
+                                                <span class="waveform-title ecg-color" id="param_lead"
+                                                    style="margin-left:20px">Master lead:---</span>
+                                                <span class="waveform-title ecg-color" id="param_notch"
+                                                    style="margin-left:20px">Notch filter:---</span>
+                                                <span class="waveform-title ecg-color" id="param_pace"
+                                                    style="margin-left:20px">Pace:---</span>
+                                                <span class="waveform-title ecg-color" id="param_gain"
+                                                    style="margin-left:20px">Gain:10 mm/mV</span>
+                                                <span class="waveform-title ecg-color" id="param_speed"
+                                                    style="margin-left:20px">Speed: 25 mm/s</span>
                                             </div>
-                                        </b-col>
-                                        <canvas :id="`signalCanvas${index + 1}`" :width="canvas.width"
-                                            :height="canvas.height" style="margin-left: 50px;"></canvas>
-                                    </b-row>
-                                </div>
-                                <div class="d-flex flex-column mt-1" style="margin-left: 90px;">
-                                    <b-row v-for="(canvas, index) in rightCanvasData10" :key="index"
-                                        class="position-relative">
-                                        <b-col>
-                                            <h5 style="margin-top: 35px; color: white; position: absolute; left: 0px;">
-                                                V{{
-                                                index + 1 }}</h5>
-                                            <div
-                                                style="border-right: 1px solid white; height: 80%; position: absolute; right: 400px;">
-                                            </div>
-                                        </b-col>
-                                        <canvas :id="`signalCanvas${index + 7}`" :width="canvas.width"
-                                            :height="canvas.height" style="margin-left: 50px;"></canvas>
-                                    </b-row>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div v-else-if="selectedwires === '5 Wires'" class="d-flex flex-wrap">
-                                <div class="d-flex flex-column mt-1">
-                                    <b-row v-for="(canvas, index) in leftCanvasData5" :key="index"
-                                        class="position-relative">
-                                        <b-col>
-                                            <h5 style="margin-top: 35px; color: white; position: absolute; left: 0px;">
-                                                {{
-                                                leadLabels5left[index] }}</h5>
-                                            <div
-                                                style="border-right: 1px solid white; height: 80%; position: absolute; right: 400px;">
+
+                            <div class="col-md-15">
+
+                                <div class="container-online">
+
+                                    <div class="waveforms-container">
+                                        <div class="waveform-box">
+                                            <span class="waveform-title ecg-color">Lead I</span>
+                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                            <canvas class="waveform" id="waveform-ecg1" width="1400px" height="185px"></canvas>
+                                        </div>
+                                        <div class="waveform-box">
+                                            <span class="waveform-title ecg-color">Lead 2</span>
+                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                            <canvas class="waveform" id="waveform-ecg2" width="1400px" height="185px"></canvas>
+                                        </div>
+                                        <div class="waveform-box">
+                                            <span class="waveform-title ecg-color">Lead 3</span>
+                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                            <canvas class="waveform" id="waveform-ecg3" width="1400px" height="185px"></canvas>
+                                        </div>
+                                        <div class="waveform-box">
+                                            <span class="waveform-title ecg-color">Lead AVR</span>
+                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                            <canvas class="waveform" id="waveform-avr" width="1400px" height="185px"></canvas>
+                                        </div>
+                                        <div class="waveform-box">
+                                            <span class="waveform-title ecg-color">Lead AVL</span>
+                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                            <canvas class="waveform" id="waveform-avl" width="1400px" height="185px"></canvas>
+                                        </div>
+                                        <div class="waveform-box">
+                                            <span class="waveform-title ecg-color">Lead AVF</span>
+                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                            <canvas class="waveform" id="waveform-avf" width="1400px" height="185px"></canvas>
+                                        </div>
+                                    </div>
+
+                                    <div class="waveforms-container">
+                                        <div class="waveform-box">
+                                            <span class="waveform-title ecg-color">Lead V1</span>
+                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                            <canvas class="waveform" id="waveform-v1" width="1400px" height="185px"></canvas>
+                                        </div>
+                                        <div class="waveform-box">
+                                            <span class="waveform-title ecg-color">Lead V2</span>
+                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                            <canvas class="waveform" id="waveform-v2" width="1400px" height="185px"></canvas>
+                                        </div>
+                                        <div class="waveform-box">
+                                            <span class="waveform-title ecg-color">Lead V3</span>
+                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                            <canvas class="waveform" id="waveform-v3" width="1400px" height="185px"></canvas>
+                                        </div>
+                                        <div class="waveform-box">
+                                            <span class="waveform-title ecg-color">Lead V4</span>
+                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                            <canvas class="waveform" id="waveform-v4" width="1400px" height="185px"></canvas>
+                                        </div>
+                                        <div class="waveform-box">
+                                            <span class="waveform-title ecg-color">Lead V5</span>
+                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                            <canvas class="waveform" id="waveform-v5" width="1400px" height="185px"></canvas>
+                                        </div>
+                                        <div class="waveform-box">
+                                            <span class="waveform-title ecg-color">Lead V6</span>
+                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                            <canvas class="waveform" id="waveform-v6" width="1400px" height="185px"></canvas>
+                                        </div>
+                                    </div>
+
+                                    <div class="parameters-container">
+                                        <div class="parameter-box">
+                                            <div class="parameter-header">
+                                                <span class="parameter-title ecg-color">HR(bpm)</span>
+                                                <span class="parameter-valueHR ecg-color"
+                                                    id="parameter-heart-rate">---</span>
                                             </div>
-                                        </b-col>
-                                        <canvas :id="`signalCanvas${index + 1}`" :width="canvas.width"
-                                            :height="canvas.height" class="ml-2" style="margin-left: 50px;"></canvas>
-                                    </b-row>
-                                </div>
-                                <div class="d-flex flex-column mt-1" style="margin-left: 90px;">
-                                    <b-row v-for="(canvas, index) in rightCanvasData5" :key="index"
-                                        class="position-relative">
-                                        <b-col>
-                                            <h5 style="margin-top: 35px; color: white; position: absolute; left: 0px;">
-                                                {{
-                                                leadLabels5right[index] }}</h5>
-                                            <div
-                                                style="border-right: 1px solid white; height: 80%; position: absolute; right: 400px;">
+                                            <div class="patient-info">
+                                                <span class="info-item ecg-color" id="device-code">Device Code:
+                                                    ---</span>
+                                                <span class="info-item ecg-color" id="patient-age">Age: ---</span>
+                                                <span class="info-item ecg-color" id="patient-name">Patient ---</span>
+                                                <span class="info-item ecg-color" id="patient-age">Age: ---</span>
+                                                <span class="info-item ecg-color" id="patient-gender">Gender: ---</span>
+                                                <span class="info-item ecg-color" id="patient-national-code">National
+                                                    Code:
+                                                    ---</span>
                                             </div>
-                                        </b-col>
-                                        <canvas :id="`signalCanvas${index + 5}`" :width="canvas.width"
-                                            :height="canvas.height" class="ml-2" style="margin-left: 50px;"></canvas>
-                                    </b-row>
+                                        </div>
+
+                                        <div class="parameter-box">
+                                            <span class="parameter-title nibp-color">NIBP(mmHg)</span>
+                                            <span class="parameter-value2 nibp-color"
+                                                id="parameter-nibp">---/---(---)</span>
+                                        </div>
+
+                                        <div class="parameter-box">
+                                            <span class="parameter-title spo2-color">SpO2(%)</span>
+                                            <span class="parameter-value spo2-color" id="parameter-spo2">---</span>
+                                        </div>
+
+                                        <div class="parameter-box">
+                                            <span class="parameter-title spo2-color">PR(bpm)</span>
+                                            <span class="parameter-value spo2-color"
+                                                id="parameter-pulse-rate">---</span>
+                                        </div>
+
+                                        <div class="parameter-box">
+                                            <span class="parameter-title temperature-color">Temp1(°C)</span>
+                                            <span class="parameter-value temperature-color"
+                                                id="parameter-temperature1">---</span>
+                                        </div>
+
+                                        <div class="parameter-box">
+                                            <span class="parameter-title temperature-color">Temp2(°C)</span>
+                                            <span class="parameter-value temperature-color"
+                                                id="parameter-temperature2">---</span>
+                                        </div>
+
+                                        <div class="parameter-box">
+                                            <span class="parameter-title resp-color">RESP(brpm)</span>
+                                            <span class="parameter-value resp-color" id="parameter-resp-rate">---</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <!-- <div v-else-if="selectedwires === '3 Wires'">
-                                <div class="mt-3">
-                                    <canvas id="signalCanvas13" width="1200" height="900"></canvas>
-                                </div>
-                            </div> -->
+                        </div>
+                    </div>
+                </div>
 
-                        </b-col>
 
-                        <!--Table-->
-                        <b-col cols="12" md="3" class="mb-md-0 mb-2">
-                            <table class="table"
-                                style="width: 100%; font-size: 18px; color: #00fafc; margin: 0; background-color: black;"
-                                cellpadding="10">
-                                <tbody>
-                                    <tr>
-                                        <td style="text-align: center; vertical-align: middle">
-                                            Device Code : {{ items.DeviceCode }}
-                                            <br>
-                                            Patient Name : {{ items.PatientName }}
-                                            <br>
-                                            Age : {{ items.PatientAge }}
-                                            <br>
-                                            Gender : {{ items.PatientGender }}
-                                            <br>
-                                            National Code : {{ items.PatientNationalCode }}
-                                            &nbsp;
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="text-align: center;border-top: 1px solid #00fafc;">
-                                            HR (BPM)
-                                            <br>
-                                            <span style="color: greenyellow;">{{ items.Hr }}</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="text-align: center;border-top: 1px solid #00fafc;">
-                                            <div style="width: 50%;float: left;" align="center">
-                                                SpO
-                                                <sub>2</sub>
-                                                %
-                                                <br>
-                                                <span style="color: blueviolet;">{{ items.Spo2 }}</span>
-                                            </div>
-                                            <div style="width: 50%;float: left;" align="center">
-                                                PR (BPM)
-                                                <br>
-                                                <span style="color: blueviolet;">{{ items.Pr }}</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="text-align: center;border-top: 1px solid #00fafc;">
-                                            NIBP (mmhg)
-                                            <br>
-                                            <span style="color: yellow;">{{ items.NibpSys }} / {{ items.NibpDias }}
-                                                ({{ items.NibpMean }})</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="text-align: center;border-top: 1px solid #00fafc;">
-                                            <div style="width: 34%;float: left;vertical-align: middle" align="center">
-                                                EtCO
-                                                <sub>2</sub>
-                                                (mmhg)
-                                                <br>
-                                                <span style="color: orange;">{{ items.Etco2 }}</span>
-                                            </div>
-                                            <div style="width: 30%;float: left;vertical-align: middle" align="center">
-                                                FiCO
-                                                <sub>2</sub>
-                                                (mmhg
-                                                <br>
-                                                <span style="color: orange;">{{ items.Fico2 }}</span>
-                                            </div>
-                                            <div style="width: 35%;float: left;vertical-align: middle" align="center">
-                                                Rr (BrPM)
-                                                <br>
-                                                <span style="color: orange;">{{ items.Rr }}</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="text-align: center;border-top: 1px solid #00fafc;">
-                                            <div style="width: 50%;float: left;" align="center">
-                                                Temp 1(
-                                                <sup>o</sup>
-                                                C)
-                                                <br>
-                                                <span style="color: orange;">{{ items.T1 }}</span>
-                                            </div>
-                                            <div style="width: 50%;float: left;" align="center">
-                                                Temp 2(
-                                                <sup>o</sup>
-                                                C)
-                                                <br>
-                                                <span style="color: orange;">{{ items.T2 }}</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="text-align: left;border-top: 1px solid #00fafc; padding-top: 10px;">
-                                            Description
-                                            <br>
-                                            <span style="color: white;">{{ items.Description }}</span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </b-col>
-                    </b-row>
-                </b-card>
-
-                <!--Filter-->
-                <b-card class="ml-3" style="width: 20vw;">
-                    <b-col cols="12" md="12" class="mb-md-0 mb-2">
-                        <h5>Device</h5>
-                        <v-select :options="selectDevice" :reduce="(selectDevice) => selectDevice.value" label="title"
-                            v-model="select_device" placeholder="(Choose Device)" class="w-100" />
-                        <b-row xl="12" sm="12" class="mt-2">
-                            <!-- <b-col cols="12" md="12" class="mb-md-0 mb-2 d-flex align-items-end">
-                                <b-button class="sidebar-center mr-2" v-ripple.400="'rgba(113, 102, 240, 0.15)'"
-                                    variant="outline-primary">
-                                    <feather-icon icon="SearchIcon" /> Search
-                                </b-button>
-                                <b-button class="sidebar-center" v-ripple.400="'rgba(113, 102, 240, 0.15)'"
-                                    variant="outline-primary">
-                                    <feather-icon icon="SearchIcon" /> Reset
-                                </b-button>
-                            </b-col> -->
-                        </b-row>
-                    </b-col>
-                </b-card>
-            </section>
-        </b-card>
+            </div>
+        </div>
     </div>
-    <!-- <h1>WebSocket Example</h1> -->
-    <!-- <div id="messages"></div> -->
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-vue@2.22.0/dist/bootstrap-vue.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.35.5/dist/apexcharts.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue-apexcharts@1.6.2/dist/vue-apexcharts.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue-select@3.20.0/dist/vue-select.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue-ripple-directive@2.0.1/dist/vue-ripple-directive.umd.min.js"></script>
+    <div class="modal  fade in" id="modal" tabindex="-1" data-keyboard="false" data-backdrop="static" role="dialog"
+        aria-hidden="true">
+    </div>
+    <script src="/Scripts/jquery-1.12.4.js"></script>
+    <script src="/Scripts/libs/jquery.unobtrusive-ajax.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+
+    <script src="/Scripts/libs/bootstrap.min.js"></script>
+    <script src="/Scripts/libs/respond.min.js"></script>
+    <script src="/Scripts/plugins/jquery.noty.packaged.min.js"></script>
+    <script src="/Scripts/plugins/jquery.dlmenu.min.js"></script>
+    <script src="/Scripts/plugins/masonry.pkgd.min.js"></script>
+    <script src="/Scripts/plugins/jquery.mvc.deleteItem.min.js"></script>
+    <script src="/Scripts/plugins/jquery.mvc.asyncLoad.min.js"></script>
+    <script src="/Scripts/plugins/jquery.mvc.scan.min.js"></script>
+    <script src="/Scripts/plugins/jquery.mvc.getJson.min.js"></script>
+    <script src="/Scripts/customs/noty.alerts.min.js"></script>
+    <script src="/Scripts/customs/ajax.methods.min.js"></script>
+    <script src="/Scripts/plugins/fileinput.min.js"></script>
+    <script src="/Scripts/plugins/jquery.farsiInput.min.js"></script>
+    <script src="/Scripts/customs/site.min.js"></script>
+    <script src="/Scripts/online/ecg-waveform.js"></script>
+
     <script>
-        Vue.use(BootstrapVue);
+        const waveformECG1 = new EcgWaveform(document.getElementById('waveform-ecg1'), 'green', 1900, 0.6, 25);
+        const waveformECG2 = new EcgWaveform(document.getElementById('waveform-ecg2'), 'green', 1900, 0.6, 25);
+        const waveformECG3 = new EcgWaveform(document.getElementById('waveform-ecg3'), 'green', 1900, 0.6, 25);
+        const waveformECG4 = new EcgWaveform(document.getElementById('waveform-avr'), 'green', 1900, 0.6, 25);
+        const waveformECG5 = new EcgWaveform(document.getElementById('waveform-avl'), 'green', 1900, 0.6, 25);
+        const waveformECG6 = new EcgWaveform(document.getElementById('waveform-avf'), 'green', 1900, 0.6, 25);
+        const waveformECG7 = new EcgWaveform(document.getElementById('waveform-v1'), 'green', 1900, 0.6, 25);
+        const waveformECG8 = new EcgWaveform(document.getElementById('waveform-v2'), 'green', 1900, 0.6, 25);
+        const waveformECG9 = new EcgWaveform(document.getElementById('waveform-v3'), 'green', 1900, 0.6, 25)
+        const waveformECG10 = new EcgWaveform(document.getElementById('waveform-v4'), 'green', 1900, 0.6, 25);
+        const waveformECG11 = new EcgWaveform(document.getElementById('waveform-v5'), 'green', 1900, 0.6, 25);
+        const waveformECG12 = new EcgWaveform(document.getElementById('waveform-v6'), 'green', 1900, 0.6, 25);
 
-        let app = new Vue({
-            el: '#app',
-            components: {
-                'vue-apex-charts': VueApexCharts,
-                'v-select': VueSelect.VueSelect
-            },
-            data() {
-                return {
-                    dir: false,
-                    perPage: 10,
-                    currentPage: 1,
-                    sortBy: '',
-                    sortDesc: false,
-                    sortDirection: 'asc',
-                    select_device: '',
-                    filter: null,
-                    filterOn: [],
-                    key: 0,
-                    params: {
-                        date_start: '',
-                        date_finish: '',
-                        type_report: ''
-                    },
-                    infoModal: {
-                        id: 'info-modal',
-                        title: '',
-                        content: '',
-                    },
-                    leadLabels: ["I", "II", "III", "aVR", "aVL", "aVF"],
-                    leadLabels5left: ["I", "II", "III", "IV"],
-                    leadLabels5right: ["aVR", "aVL", "aVF"],
-                    selectDevice: [
-                        { title: '2123', value: '2123' },
-                        { title: '2124', value: '2124' },
-                        { title: '2125', value: '2125' },
-                        { title: '2126', value: '2126' },
-                        { title: '2127', value: '2127' },
-                    ],
-                    selectedwires: '10 Wires',
-                    optionswires: [
-                        { item: '10 Wires', name: '10 Wires' },
-                        { item: '5 Wires', name: '5 Wires' },
-                        // { item: '3 Wires', name: '3 Wires' },
-                    ],
-                    selectedgain: 'Gain:10 mm/mv',
-                    optionsgain: [
-                        { item: 'Gain:1.25 mm/mv', name: '1.25 mm/mv' },
-                        { item: 'Gain:2.5 mm/mv', name: '2.5 mm/mv' },
-                        { item: 'Gain:5 mm/mv', name: '5 mm/mv' },
-                        { item: 'Gain:10 mm/mv', name: '10 mm/mv' },
-                        { item: 'Gain:20 mm/mv', name: '20 mm/mv' },
-                    ],
-                    selectedspeed: 'Speed:25 mm/s',
-                    optionsspeed: [
-                        { item: 'Speed:25 mm/mv', name: '25 mm/mv' },
-                        { item: 'Speed:50 mm/mv', name: '50 mm/mv' },
-                    ],
-                    selectedpace: 'Pace:On',
-                    optionspace: [
-                        { item: 'Pace:On', name: 'On' },
-                        { item: 'Pace:Off', name: 'Off' },
-                    ],
-                    leftCanvasData10: [
-                        { width: 345, height: 130 },
-                        { width: 345, height: 130 },
-                        { width: 345, height: 130 },
-                        { width: 345, height: 130 },
-                        { width: 345, height: 130 },
-                        { width: 345, height: 130 },
-                    ],
-                    rightCanvasData10: [
-                        { width: 345, height: 130 },
-                        { width: 345, height: 130 },
-                        { width: 345, height: 130 },
-                        { width: 345, height: 130 },
-                        { width: 345, height: 130 },
-                        { width: 345, height: 130 },
-                    ],
-                    leftCanvasData5: [
-                        { width: 345, height: 130 },
-                        { width: 345, height: 130 },
-                        { width: 345, height: 130 },
-                        { width: 345, height: 130 },
-                    ],
-                    rightCanvasData5: [
-                        { width: 345, height: 130 },
-                        { width: 345, height: 130 },
-                        { width: 345, height: 130 },
-                    ],
-                    receivedValue: 0,
-                    receivedData: null,
-                    items: {},
-                    signalBuffer: [],
-                    leadSignals: {
-                        'I': [],
-                        'II': [],
-                        'III': [],
-                        'aVR': [],
-                        'aVL': [],
-                        'aVF': [],
-                        'V1': [],
-                        'V2': [],
-                        'V3': [],
-                        'V4': [],
-                        'V5': [],
-                        'V6': []
-                    },
-                    pixelsPerMm: 5,
-                    speedFactor: 25,
-                }
-            },
-            computed: {
-                direction() {
-                    if (store.state.appConfig.isRTL) {
-                        this.dir = true
-                        return this.dir
-                    }
-                    this.dir = false
-                    return this.dir
-                },
-                watchSelectedgain() {
-                    return this.selectedSgain;
-                }
-            },
-            methods: {
-                handleWebSocketMessage(event) {
-                    const data = JSON.parse(event.data);
-                    this.items = data;
-                    this.updateAllSignals();
-                },
-                resetData() {
-                    this.LineChartPatient.series[0].data = [];
-                },
-                info(item, index, button) {
-                    this.infoModal.title = `Row index: ${index}`
-                    this.infoModal.content = JSON.stringify(item, null, 2)
-                    this.$root.$emit('bv::show::modal', this.infoModal.id, button)
-                },
-                resetInfoModal() {
-                    this.infoModal.title = ''
-                    this.infoModal.content = ''
-                },
-                advanceSearch(val) {
-                    this.searchTerm = val
-                },
-                animateSignal() {
-                    this.drawSignal(ctx, canvas, signalHeight, amplitude, frequency);
-                    requestAnimationFrame(animateSignal);
-                },
-                drawSignalsAndGrids() {
-                    const signalHeight = 20;
-                    const signalGap = 10;
-                    const amplitude = 30;
-                    const frequency = 0.3;
+        const paramHeartRate = document.getElementById('parameter-heart-rate');
+        const paramNIBP = document.getElementById('parameter-nibp');
+        const paramSpO2 = document.getElementById('parameter-spo2');
+        const paramPulseRate = document.getElementById('parameter-pulse-rate');
+        const paramTemperature1 = document.getElementById('parameter-temperature1');
+        const paramTemperature2 = document.getElementById('parameter-temperature2');
+        const paramRespRate = document.getElementById('parameter-resp-rate');
 
-                    let canvasCount = 0;
-                    if (this.selectedwires === '10 Wires') {
-                        canvasCount = 12;
-                    } else if (this.selectedwires === '5 Wires') {
-                        canvasCount = 7;
-                    }
+        const param_name = document.getElementById('param_name');
+        const param_code = document.getElementById('param_code');
 
-                    for (let i = 0; i < canvasCount; i++) {
-                        const canvasId = `signalCanvas${i + 1}`;
-                        const canvas = document.getElementById(canvasId);
-                        const ctx = canvas.getContext('2d');
+        const param_wires = document.getElementById('param_wires');
+        const param_lead = document.getElementById('param_lead');
+        const param_notch = document.getElementById('param_notch');
+        const param_pace = document.getElementById('param_pace');
+        const param_gain = document.getElementById('param_gain');
+        const param_speed = document.getElementById('param_speed');
 
-                        this.drawGrid(ctx, canvas, signalHeight, signalGap);
-                        this.drawSignal(ctx, canvas, signalHeight, amplitude, frequency, i); // Pass the lead index (i)
-                    }
-                },
-                drawGrid(ctx, canvas, signalHeight, signalGap) {
-                    ctx.strokeStyle = '#FA4848';
-                    ctx.lineWidth = 0.5;
 
-                    const mmPerBigSquare = 5;
+        var ecgWaveformBuf1 = [];
+        var ecgWaveformBuf2 = [];
+        var ecgWaveformBuf3 = [];
+        var ecgWaveformBuf4 = [];
+        var ecgWaveformBuf5 = [];
+        var ecgWaveformBuf6 = [];
+        var ecgWaveformBuf7 = [];
+        var ecgWaveformBuf8 = [];
+        var ecgWaveformBuf9 = [];
+        var ecgWaveformBuf10 = [];
+        var ecgWaveformBuf11 = [];
+        var ecgWaveformBuf12 = [];
 
-                    // Menggambar garis vertikal (waktu)
-                    for (let x = 0; x <= canvas.width; x += this.pixelsPerMm) {
-                        ctx.beginPath();
-                        ctx.moveTo(x, 0);
-                        ctx.lineTo(x, canvas.height);
-                        if (x % (this.pixelsPerMm * mmPerBigSquare) === 0) {
-                            ctx.lineWidth = 1;
-                        } else {
-                            ctx.lineWidth = 0.5;
-                        }
-                        ctx.stroke();
-                    }
+        var waveforms = [
+            { "waveform": waveformECG1, "buffer": ecgWaveformBuf1, "slice_size": 10 },
+            { "waveform": waveformECG2, "buffer": ecgWaveformBuf2, "slice_size": 10 },
+            { "waveform": waveformECG3, "buffer": ecgWaveformBuf3, "slice_size": 10 },
+            { "waveform": waveformECG4, "buffer": ecgWaveformBuf4, "slice_size": 10 },
+            { "waveform": waveformECG5, "buffer": ecgWaveformBuf5, "slice_size": 10 },
+            { "waveform": waveformECG6, "buffer": ecgWaveformBuf6, "slice_size": 10 },
+            { "waveform": waveformECG7, "buffer": ecgWaveformBuf7, "slice_size": 10 },
+            { "waveform": waveformECG8, "buffer": ecgWaveformBuf8, "slice_size": 10 },
+            { "waveform": waveformECG9, "buffer": ecgWaveformBuf9, "slice_size": 10 },
+            { "waveform": waveformECG10, "buffer": ecgWaveformBuf10, "slice_size": 10 },
+            { "waveform": waveformECG11, "buffer": ecgWaveformBuf11, "slice_size": 10 },
+            { "waveform": waveformECG12, "buffer": ecgWaveformBuf12, "slice_size": 10 },
+        ];
+        window.onload = initdocument;
 
-                    // Menggambar garis horizontal (voltase)
-                    for (let y = 0; y <= canvas.height; y += this.pixelsPerMm) {
-                        ctx.beginPath();
-                        ctx.moveTo(0, y);
-                        ctx.lineTo(canvas.width, y);
-                        if (y % (this.pixelsPerMm * mmPerBigSquare) === 0) {
-                            ctx.lineWidth = 1;
-                        } else {
-                            ctx.lineWidth = 0.5;
-                        }
-                        ctx.stroke();
-                    }
-                },
-                drawSignal(ctx, canvas, signalHeight, frequency, leadIndex) {
-                    ctx.strokeStyle = 'green';
-                    ctx.lineWidth = 2;
 
-                    const mVPerMm = 0.1;
-                    const centerY = canvas.height / 2;
-
-                    let gainFactor;
-                    switch (this.selectedgain) {
-                        case 'Gain:1.25 mm/mv': gainFactor = 125; break;
-                        case 'Gain:2.5 mm/mv': gainFactor = 250; break;
-                        case 'Gain:5 mm/mv': gainFactor = 500; break;
-                        case 'Gain:10 mm/mv': gainFactor = 1000; break;
-                        case 'Gain:20 mm/mv': gainFactor = 2000; break;
-                        default: gainFactor = 10;
-                    }
-
-                    if (this.items && this.items.Signals) {
-                        let signalData;
-                        if (this.items.Signals[leadIndex] === null || this.items.Signals[leadIndex] === undefined) {
-                            signalData = new Array(50).fill(0);
-                        } else {
-                            signalData = this.items.Signals[leadIndex];
-                        }
-
-                        const samplesPerMm = this.speedFactor / 25;
-                        let newDataPoints = signalData.filter((_, idx) => idx % samplesPerMm === 0);
-
-                        // Update signal buffer
-                        this.signalBuffer = [...newDataPoints, ...this.signalBuffer];
-                        if (this.signalBuffer.length > canvas.width) {
-                            this.signalBuffer = this.signalBuffer.slice(0, canvas.width);
-                        }
-
-                        ctx.beginPath();
-                        this.signalBuffer.forEach((value, index) => {
-                            const x = index;
-                            const y = centerY - (value / (mVPerMm * gainFactor) * this.pixelsPerMm);
-
-                            if (index === 0) {
-                                ctx.moveTo(x, y);
-                            } else {
-                                ctx.lineTo(x, y);
-                            }
-                        });
-                        ctx.stroke();
-                    }
-                },
-                updateAllSignals() {
-                console.log(this.select_device);
-
-                    let canvasCount = 0;
-                    if (this.selectedwires === '10 Wires') {
-                        canvasCount = 12;
-                    } else if (this.selectedwires === '5 Wires') {
-                        canvasCount = 7;
-                    }
-
-                    for (let i = 0; i < canvasCount; i++) {
-                        const canvasId = `signalCanvas${i + 1}`;
-                        const canvas = document.getElementById(canvasId);
-                        const ctx = canvas.getContext('2d');
-
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);  
-                        this.drawGrid(ctx, canvas);
-                        this.drawSignal(ctx, canvas, 20, 0.3, i);
-                    }
-                }
-            },
-            // directives: {
-            //     'b-modal': VBModal,
-            //     Ripple
-            // },
-            watch: {
-                selectedgain() {
-                    this.updateAllSignals();
-                },
-                selectedspeed(newSpeed) {
-                    switch (newSpeed) {
-                        case 'Speed:25 mm/s':
-                            this.speedFactor = 25;
-                            break;
-                        case 'Speed:50 mm/s':
-                            this.speedFactor = 50;
-                            break;
-                        default:
-                            this.speedFactor = 25;
-                    }
-                    this.updateAllSignals();
-                },
-            },
-            mounted() {
-                this.drawSignalsAndGrids();
-                setInterval(() => {
-                    if (this.items && this.items.Signals) {
-                        this.updateAllSignals();
-                    }
-                }, 30000); // Update every 30 seconds
-
-                if (window.socket) {
-                    window.socket.addEventListener('message', this.handleWebSocketMessage);
-                }
-            },
-            beforeDestroy() {
-                if (window.socket) {
-                    window.socket.removeEventListener('message', this.handleWebSocketMessage);
-                }
-            },
+        window.addEventListener('beforeunload', (e) => {
+            e.preventDefault()
+            return (e.returnValue = 'Are you sure you want to close?')
         })
-    </script>
-    <script>
-        window.socket = null;
-        window.jwtToken = '';
+
+        async function initdocument() {
+            var wsUri = "wss://monitoring.telehealth.universal-iot.com:443/web";
+            websocket = new WebSocket(wsUri);
+            websocket.onopen = onOpen;
+            websocket.onclose = onClose;
+            websocket.onmessage = onMessage;
+            websocket.onerror = onError;
+
+            setInterval(updateWaveforms, 40);
+            setInterval(aliveHandShake, 10000);
+        }
+
+        window.onload = initdocument;
+
         const authServerUrl = "https://monitoring.telehealth.universal-iot.com/api/chronos/GetToken";
+
+        window.jwtToken = '';
 
         async function getJwtToken() {
             try {
@@ -612,76 +314,246 @@
                         'Content-Type': 'application/json',
                     }
                 });
-                return response.data.Data;
+                window.jwtToken = response.data.Data;
+                return window.jwtToken;
             } catch (error) {
                 console.error("Error getting JWT token:", error);
                 return null;
             }
         }
 
-        async function connectWebSocket() {
-            window.jwtToken = await getJwtToken();
-            if (!window.jwtToken) {
-                console.error("Failed to get JWT token. Cannot connect to WebSocket.");
-                return;
-            }
-
-            window.socket = new WebSocket('wss://monitoring.telehealth.universal-iot.com/web');
-
-            window.socket.onopen = () => {
-                console.log('WebSocket connection opened');
-                let deviceCode = '2123';
-                let random = '545859653';
-                let patientCode = '0';
-                let arg = `${deviceCode},${random},${patientCode},${window.jwtToken}`;
-                window.socket.send(arg);
-            };
-
-            let lastUpdateTime = 0;
-            const updateInterval = 500;
-
-            window.socket.onmessage = (event) => {
-                const currentTime = Date.now();
-                const data = JSON.parse(event.data);
-
-                window.latestData = data;
-
-                if (currentTime - lastUpdateTime >= updateInterval) {
-                    if (app && window.latestData) {
-                        app.items = window.latestData;
-                        app.updateAllSignals();
-                    }
-                    lastUpdateTime = currentTime;
+        async function onOpen(evt) {
+            try {
+                await getJwtToken();
+                if (window.jwtToken) {
+                    let arg = 2123 + "," + 55975275 + "," + 0 + "," + window.jwtToken;
+                    doSend(arg);
+                } else {
+                    console.error("Failed to get JWT token");
                 }
-            };
-
-            window.socket.onclose = () => {
-                console.log('WebSocket connection closed');
-            };
-
-            window.socket.onerror = (error) => {
-                console.error('WebSocket error:', error);
-            };
-        }
-
-        // Connect to WebSocket when the page loads
-        connectWebSocket();
-
-        // Reconnect function
-        function reconnectWebSocket() {
-            console.log("WebSocket connection is closed. Reconnecting...");
-            connectWebSocket();
-        }
-
-        // Set up interval for sending "Hi" message
-        setInterval(() => {
-            if (window.socket && window.socket.readyState === WebSocket.OPEN) {
-                window.socket.send("Hi");
-            } else {
-                reconnectWebSocket();
+            } catch (error) {
+                console.error("Error in onOpen:", error);
             }
-        }, 30000); 
+        }
+
+        function onClose(evt) {
+            websocket = null;
+            // alert("DISCONNECTED");
+        }
+        var lastOrder = -1;
+        function drawECGGrid() {
+            const gridCanvases = document.querySelectorAll('.grid-canvas');
+
+            gridCanvases.forEach(canvas => {
+                const ctx = canvas.getContext('2d');
+                const width = canvas.width;
+                const height = canvas.height;
+
+                // Clear canvas
+                ctx.clearRect(0, 0, width, height);
+
+                // Set grid line styles
+                ctx.strokeStyle = '#FF000020';  // Light red color
+                ctx.lineWidth = 2;
+
+                // Draw vertical lines
+                for (let x = 0; x <= width; x += 35) {  // 35px is 1mm at 25mm/s
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, height);
+                    ctx.stroke();
+
+                    // Draw darker line every 5mm
+                    if (x % 175 === 0) {
+                        ctx.strokeStyle = 'red';
+                        ctx.beginPath();
+                        ctx.moveTo(x, 0);
+                        ctx.lineTo(x, height);
+                        ctx.stroke();
+                        ctx.strokeStyle = '#FF000020';
+                    }
+                }
+
+                // Draw horizontal lines
+                for (let y = 0; y <= height; y += 37) {  // 37px is 1mV at 10mm/mV
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(width, y);
+                    ctx.stroke();
+
+                    // Draw darker line every 5mm
+                    if (y % 185 === 0) {
+                        ctx.strokeStyle = '#FF000020';
+                        ctx.beginPath();
+                        ctx.moveTo(0, y);
+                        ctx.lineTo(width, y);
+                        ctx.stroke();
+                        ctx.strokeStyle = '#FF000020';
+                    }
+                }
+            });
+        }
+        function onMessage(evt) {
+            const obj = JSON.parse(evt.data);
+            console.log(obj);
+            if (lastOrder == -1 || obj.Order == 0) {
+                lastOrder = obj.Order
+            }
+            else {
+                if (!(obj.Order == (lastOrder + 1)) && obj.Order > 0) {
+                    for (let i = 0; i < 10; i++) {
+                        ecgWaveformBuf1.push(0)
+                        ecgWaveformBuf2.push(0)
+                        ecgWaveformBuf3.push(0)
+                        ecgWaveformBuf4.push(0)
+                        ecgWaveformBuf5.push(0)
+                        ecgWaveformBuf6.push(0)
+                        ecgWaveformBuf7.push(0)
+                        ecgWaveformBuf8.push(0)
+                        ecgWaveformBuf9.push(0)
+                        ecgWaveformBuf10.push(0)
+                        ecgWaveformBuf11.push(0)
+                        ecgWaveformBuf12.push(0)
+                    }
+                }
+            }
+            if (obj.Order >= 0)
+                lastOrder = obj.Order
+
+            if (obj.Order == -1) {
+                paramNIBP.innerHTML = ((obj.NibpSys === '') || (obj.NibpDias === '') || (obj.NibpMean === '')) ? '---/---(---)' : obj.NibpSys + '/' + obj.NibpDias + '(' + obj.NibpMean + ')';
+
+                paramSpO2.innerHTML = (obj.Spo2 === '') ? '---' : obj.Spo2;
+                paramPulseRate.innerHTML = (obj.Pr === '') ? '---' : obj.Pr;
+                paramTemperature1.innerHTML = (obj.T1 === '') ? '---.-' : obj.T1;
+                paramTemperature2.innerHTML = (obj.T2 === '') ? '---.-' : obj.T2;
+                param_name.innerHTML = obj.PatientName;
+                param_code.innerHTML = obj.PatientNationalId;
+                document.getElementById('patient-name').textContent = 'Name: ' + (obj.PatientName || '---');
+                document.getElementById('patient-age').textContent = 'Age: ' + (obj.PatientAge || '---');
+                document.getElementById('patient-gender').textContent = 'Gender: ' + (obj.PatientGender || '---');
+                document.getElementById('patient-national-code').textContent = 'National Code: ' + (obj.PatientNationalId || '---');
+                document.getElementById('device-code').textContent = 'Device Code: ' + (obj.DeviceCode || '---');
+
+            }
+            else {
+                param_wires.innerHTML = (obj.EcgWires === '') ? 'Wires:---' : obj.EcgWires;
+                param_notch.innerHTML = (obj.NotchFilter === '') ? 'Notch filter---' : obj.NotchFilter;
+                param_pace.innerHTML = (obj.Pace === '') ? 'Pace:---' : obj.Pace;
+                // param_gain.innerHTML = (obj.EcgWires === '') ? '---' : obj.EcgWires;
+                // param_speed.innerHTML = (obj.Speed === '') ? '---' : obj.Speed;
+                param_lead.innerHTML = (obj.MasterLead === '') ? 'Master lead:---' : obj.MasterLead;
+
+
+                paramHeartRate.innerHTML = (obj.Hr === '') ? '---' : obj.Hr;
+                paramRespRate.innerHTML = (obj.Rr === '') ? '---' : obj.Rr;
+            }
+
+            let count = 0;
+            for (let i = 0; i < obj.Signals.length; i++) {
+                if (obj.Signals[i] != null) {
+                    count = obj.Signals[i].length;
+                    break;
+                }
+            }
+            for (let i = 0; i < count; i++) {
+                if (i % 2 == 0) {
+                    if (obj.Signals[0] != null && obj.Signals[0].length > 0)
+                        ecgWaveformBuf1.push((obj.Signals[0][i] + 950))
+
+                    if (obj.Signals[1] != null && obj.Signals[1].length > 0)
+                        ecgWaveformBuf2.push((obj.Signals[1][i] + 950))
+
+                    if (obj.Signals[2] != null && obj.Signals[2].length > 0)
+                        ecgWaveformBuf3.push((obj.Signals[2][i] + 950))
+                    if (obj.Signals[0] != null && obj.Signals[0].length > 0 && obj.Signals[1] != null && obj.Signals[1].length > 0) {
+
+                        ecgWaveformBuf4.push(-((obj.Signals[0][i] + obj.Signals[1][i]) / 2) + 950)
+                        ecgWaveformBuf5.push((obj.Signals[0][i] - obj.Signals[1][i] / 2) + 950)
+                        ecgWaveformBuf6.push((obj.Signals[1][i] - obj.Signals[0][i] / 2) + 950)
+                    }
+                    if (obj.Signals[3] != null && obj.Signals[3].length > 0)
+                        ecgWaveformBuf7.push((obj.Signals[3][i] + 950))
+
+                    if (obj.Signals[4] != null && obj.Signals[4].length > 0)
+                        ecgWaveformBuf8.push((obj.Signals[4][i] + 950))
+
+                    if (obj.Signals[5] != null && obj.Signals[5].length > 0)
+                        ecgWaveformBuf9.push((obj.Signals[5][i] + 950))
+
+                    if (obj.Signals[6] != null && obj.Signals[6].length > 0)
+                        ecgWaveformBuf10.push((obj.Signals[6][i] + 950))
+
+                    if (obj.Signals[7] != null && obj.Signals[7].length > 0)
+                        ecgWaveformBuf11.push((obj.Signals[7][i] + 950))
+
+                    if (obj.Signals[8] != null && obj.Signals[8].length > 0)
+                        ecgWaveformBuf12.push((obj.Signals[8][i] + 950))
+                }
+            }
+        }
+
+        function onError(evt) {
+            // alert("error");
+        }
+
+        function doSend(message) {
+            // alert("SENT: " + message);
+            websocket.send(message);
+        }
+
+        async function aliveHandShake() {
+            if (websocket == null) {
+                await initdocument();
+            } else {
+                if (window.jwtToken) {
+                    websocket.send("Hi," + window.jwtToken);
+                } else {
+                    await getJwtToken();
+                    if (window.jwtToken) {
+                        websocket.send("Hi," + window.jwtToken);
+                    } else {
+                        console.error("Failed to get JWT token for aliveHandShake");
+                    }
+                }
+            }
+        }
+        function setupTokenRefresh() {
+            // Refresh token every 55 minutes (assuming token expires in 1 hour)
+            setInterval(async () => {
+                await getJwtToken();
+            }, 55 * 60 * 1000);
+        }
+
+        // Call this function after the page loads
+        window.onload = () => {
+            initdocument();
+            setupTokenRefresh();
+            drawECGGrid();
+        };
+        function updateWaveforms() {
+            if (document.hidden) {
+                for (let waveform of waveforms) {
+                    waveform["waveform"].addArray(waveform["buffer"].splice(0, waveform["buffer"].length));
+                }
+            }
+            else {
+                for (let waveform of waveforms) {
+                    if (waveform["buffer"].length > 12) {
+                        waveform["waveform"].addArray(waveform["buffer"].splice(0, 12));
+                    }
+                    else if (waveform["buffer"].length > waveform["slice_size"]) {
+                        waveform["waveform"].addArray(waveform["buffer"].splice(0, waveform["slice_size"]));
+                    }
+
+                }
+            }
+
+        }
+
+
     </script>
+
 </body>
 
 </html>
