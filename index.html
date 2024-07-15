@@ -563,10 +563,6 @@
             }
         }
 
-        // Fungsi ini tidak lagi diperlukan karena kita menggunakan token dummy
-        function setupTokenRefresh() {
-            // No-op for now
-        }
         function setupTokenRefresh() {
             // Refresh token every 55 minutes (assuming token expires in 1 hour)
             setInterval(async () => {
@@ -574,14 +570,32 @@
             }, 55 * 60 * 1000);
         }
 
-
-        let currentToken = "12345"; // Token awal
+        let currentToken = ""; // Token awal
+        const urlParam = "https://api.telemedicine.universal-iot.com/rest-uiot/v-1/telemedicine/auth/login"
+        async function getTokenParams() {
+            try {
+                const response = await axios.post(urlParam, {
+                    email: "bily@contoh.com",
+                    password: "secret",
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                currentToken = response.data.data.token;
+                console.log(currentToken);
+                return currentToken;
+            } catch (error) {
+                console.error("Error getting JWT token:", error);
+                return null;
+            }
+        }
 
         function checkAndSetToken() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
 
-            if (urlToken === currentToken) {
+            if (urlToken === getTokenParams()) {
                 document.getElementById('content').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
                 return true;
