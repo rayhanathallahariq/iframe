@@ -571,7 +571,7 @@
         }
 
         const authlogin = "https://api.telemedicine.universal-iot.com/rest-uiot/v-1/telemedicine/auth/login";
-        // const DUMMY_TOKEN = " "; // Token dummy untuk pengujian 
+        const DUMMY_TOKEN = " "; // Token dummy untuk pengujian 
 
         async function getTokenparams() {
             try {
@@ -583,6 +583,7 @@
                         'Content-Type': 'application/json',
                     }
                 });
+                DUMMY_TOKEN = response.data.data.token;
                 console.log(response.data.data.token);
                 return response.data.data.token; // Assuming the token is directly in response.data
             } catch (error) {
@@ -595,7 +596,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
 
-            const validToken = await getTokenparams();
+            const validToken = DUMMY_TOKEN;
 
             if (urlToken === validToken) {
                 window.jwtToken = urlToken;
