@@ -575,7 +575,7 @@
         }
 
         let DUMMY_TOKEN = ""; // Token dummy untuk pengujian
-
+        const authlogin = "https://api.telemedicine.universal-iot.com/rest-uiot/v-1/telemedicine/auth/login";
         async function getTokenparams() {
             try {
                 const response = await axios.post(authlogin, {
