@@ -26,24 +26,24 @@
     <div id="error-message">
         <section class="page_404">
             <div class="container">
-                <div class="row">	
-                <div class="col-sm-12 ">
-                <div class="col-sm-10 col-sm-offset-1  text-center">
-                <div class="four_zero_four_bg">
-                    <h1 class="text-center ">404</h1>
-                
-                
-                </div>
-                
-                <div class="contant_box_404">
-                <h3 class="h2">
-                    Invalid or missing token. Please provide a valid token in the URL
-                </h3>
-                
-                <p>the page you are looking for not avaible!</p>
-            </div>
-                </div>
-                </div>
+                <div class="row">
+                    <div class="col-sm-12 ">
+                        <div class="col-sm-10 col-sm-offset-1  text-center">
+                            <div class="four_zero_four_bg">
+                                <h1 class="text-center ">404</h1>
+
+
+                            </div>
+
+                            <div class="contant_box_404">
+                                <h3 class="h2">
+                                    Invalid or missing token. Please provide a valid token in the URL
+                                </h3>
+
+                                <p>the page you are looking for not avaible!</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -349,21 +349,31 @@
         window.jwtToken = '';
 
         async function getJwtToken() {
-            if (window.jwtToken) {
+            try {
+                const response = await axios.post(authServerUrl, {
+                    username: "user1",
+                    password: "User1!1234",
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                window.jwtToken = response.data.Data;
                 return window.jwtToken;
+            } catch (error) {
+                console.error("Error getting JWT token:", error);
+                return null;
             }
-            // Untuk sementara, kita selalu mengembalikan token dummy
-            window.jwtToken = DUMMY_TOKEN;
-            return window.jwtToken;
         }
 
         async function onOpen(evt) {
             try {
+                await getJwtToken();
                 if (window.jwtToken) {
                     let arg = 2123 + "," + 55975275 + "," + 0 + "," + window.jwtToken;
                     doSend(arg);
                 } else {
-                    console.error("No JWT token available");
+                    console.error("Failed to get JWT token");
                 }
             } catch (error) {
                 console.error("Error in onOpen:", error);
@@ -543,29 +553,50 @@
                 if (window.jwtToken) {
                     websocket.send("Hi," + window.jwtToken);
                 } else {
-                    console.error("No JWT token available for aliveHandShake");
+                    await getJwtToken();
+                    if (window.jwtToken) {
+                        websocket.send("Hi," + window.jwtToken);
+                    } else {
+                        console.error("Failed to get JWT token for aliveHandShake");
+                    }
                 }
             }
         }
 
-        // Fungsi ini tidak lagi diperlukan karena kita menggunakan token dummy
         function setupTokenRefresh() {
-            // No-op for now
+            // Refresh token every 55 minutes (assuming token expires in 1 hour)
+            setInterval(async () => {
+                await getJwtToken();
+            }, 55 * 60 * 1000);
         }
-        // function setupTokenRefresh() {
-        //     // Refresh token every 55 minutes (assuming token expires in 1 hour)
-        //     setInterval(async () => {
-        //         await getJwtToken();
-        //     }, 55 * 60 * 1000);
-        // }
 
-        const DUMMY_TOKEN = "12345"; // Token dummy untuk pengujian
+        const authlogin = "https://api.telemedicine.universal-iot.com/rest-uiot/v-1/telemedicine/auth/login";
+        // const DUMMY_TOKEN = " "; // Token dummy untuk pengujian 
 
-        function checkAndSetToken() {
+        async function getTokenparams() {
+            try {
+                const response = await axios.post(authlogin, {
+                    email: "bily@contoh.com",
+                    password: "secret",
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                return response.data.data.token; // Assuming the token is directly in response.data
+            } catch (error) {
+                console.error("Error getting JWT token:", error);
+                return null;
+            }
+        }
+
+        async function checkAndSetToken() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
 
-            if (urlToken === DUMMY_TOKEN) {
+            const validToken = await getTokenparams();
+
+            if (urlToken === validToken) {
                 window.jwtToken = urlToken;
                 document.getElementById('content').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
@@ -577,8 +608,8 @@
             return false;
         }
 
-        window.onload = function () {
-            if (checkAndSetToken()) {
+        window.onload = async function () {
+            if (await checkAndSetToken()) {
                 initdocument();
                 setupTokenRefresh();
                 drawECGGrid();
@@ -609,40 +640,48 @@
     </script>
 
     <style>
-        
-/*======================
+        /*======================
     404 page
 =======================*/
 
 
-.page_404{ padding:40px 0; background:#fff; font-family: 'Arvo', serif;
-}
+        .page_404 {
+            padding: 40px 0;
+            background: #fff;
+            font-family: 'Arvo', serif;
+        }
 
-.page_404  img{ width:100%;}
+        .page_404 img {
+            width: 100%;
+        }
 
-.four_zero_four_bg{
- 
- background-image: url(https://cdn.dribbble.com/users/285475/screenshots/2083086/dribbble_1.gif);
-    height: 400px;
-    background-position: center;
- }
- 
- 
- .four_zero_four_bg h1{
- font-size:80px;
- }
- 
-  .four_zero_four_bg h3{
-			 font-size:80px;
-			 }
-			 
-			 .link_404{			 
-	color: #fff!important;
-    padding: 10px 20px;
-    background: #39ac31;
-    margin: 20px 0;
-    display: inline-block;}
-	.contant_box_404{ margin-top:-50px;}
+        .four_zero_four_bg {
+
+            background-image: url(https://cdn.dribbble.com/users/285475/screenshots/2083086/dribbble_1.gif);
+            height: 400px;
+            background-position: center;
+        }
+
+
+        .four_zero_four_bg h1 {
+            font-size: 80px;
+        }
+
+        .four_zero_four_bg h3 {
+            font-size: 80px;
+        }
+
+        .link_404 {
+            color: #fff !important;
+            padding: 10px 20px;
+            background: #39ac31;
+            margin: 20px 0;
+            display: inline-block;
+        }
+
+        .contant_box_404 {
+            margin-top: -50px;
+        }
     </style>
 </body>
 
