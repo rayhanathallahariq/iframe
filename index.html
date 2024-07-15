@@ -583,7 +583,6 @@
                         'Content-Type': 'application/json',
                     }
                 });
-                console.log(response.data.data.token);
                 return response.data.data.token;
             } catch (error) {
                 console.error("Error getting JWT token:", error);
@@ -591,17 +590,12 @@
             }
         }
 
-        async function checkAndSetToken() {
+        function checkAndSetToken() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
 
             if (urlToken) {
                 currentToken = urlToken;
-            } else {
-                currentToken = await getTokenParams();
-            }
-
-            if (currentToken) {
                 document.getElementById('content').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
                 return true;
@@ -612,12 +606,12 @@
             }
         }
 
-        window.onload = async function () {
-            if (await checkAndSetToken()) {
+        window.onload = function () {
+            if (checkAndSetToken()) {
                 initdocument();
                 drawECGGrid();
             }
-        };;
+        };
 
         function updateWaveforms() {
             if (document.hidden) {
