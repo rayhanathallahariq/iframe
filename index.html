@@ -349,21 +349,31 @@
         window.jwtToken = '';
 
         async function getJwtToken() {
-            if (window.jwtToken) {
+            try {
+                const response = await axios.post(authServerUrl, {
+                    username: "user1",
+                    password: "User1!1234",
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                window.jwtToken = response.data.Data;
                 return window.jwtToken;
+            } catch (error) {
+                console.error("Error getting JWT token:", error);
+                return null;
             }
-            // Untuk sementara, kita selalu mengembalikan token dummy
-            window.jwtToken = DUMMY_TOKEN;
-            return window.jwtToken;
         }
 
         async function onOpen(evt) {
             try {
+                await getJwtToken();
                 if (window.jwtToken) {
                     let arg = 2123 + "," + 55975275 + "," + 0 + "," + window.jwtToken;
                     doSend(arg);
                 } else {
-                    console.error("No JWT token available");
+                    console.error("Failed to get JWT token");
                 }
             } catch (error) {
                 console.error("Error in onOpen:", error);
@@ -543,7 +553,12 @@
                 if (window.jwtToken) {
                     websocket.send("Hi," + window.jwtToken);
                 } else {
-                    console.error("No JWT token available for aliveHandShake");
+                    await getJwtToken();
+                    if (window.jwtToken) {
+                        websocket.send("Hi," + window.jwtToken);
+                    } else {
+                        console.error("Failed to get JWT token for aliveHandShake");
+                    }
                 }
             }
         }
@@ -552,12 +567,12 @@
         function setupTokenRefresh() {
             // No-op for now
         }
-        // function setupTokenRefresh() {
-        //     // Refresh token every 55 minutes (assuming token expires in 1 hour)
-        //     setInterval(async () => {
-        //         await getJwtToken();
-        //     }, 55 * 60 * 1000);
-        // }
+        function setupTokenRefresh() {
+            // Refresh token every 55 minutes (assuming token expires in 1 hour)
+            setInterval(async () => {
+                await getJwtToken();
+            }, 55 * 60 * 1000);
+        }
 
         const DUMMY_TOKEN = "12345"; // Token dummy untuk pengujian
 
@@ -566,7 +581,7 @@
             const urlToken = urlParams.get('token');
 
             if (urlToken === DUMMY_TOKEN) {
-                window.jwtToken = urlToken;
+                DUMMY_TOKEN = urlToken;
                 document.getElementById('content').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
                 return true;
