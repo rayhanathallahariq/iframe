@@ -583,6 +583,7 @@
                         'Content-Type': 'application/json',
                     }
                 });
+                console.log(response.data.data.token);
                 return response.data.data.token; // Assuming the token is directly in response.data
             } catch (error) {
                 console.error("Error getting JWT token:", error);
