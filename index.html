@@ -574,7 +574,7 @@
             }, 55 * 60 * 1000);
         }
 
-        const DUMMY_TOKEN = ""; // Token dummy untuk pengujian
+        let DUMMY_TOKEN = ""; // Token dummy untuk pengujian
 
         async function getTokenparams() {
             try {
@@ -588,7 +588,13 @@
                 });
                 DUMMY_TOKEN = response.data.data.token;
                 console.log(DUMMY_TOKEN);
-                return DUMMY_TOKEN
+
+                // Update the URL with the new token and refresh the page
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('token', DUMMY_TOKEN);
+                window.location.href = currentUrl.toString();
+
+                return DUMMY_TOKEN;
             } catch (error) {
                 console.error("Error getting JWT token:", error);
                 return null;
@@ -599,8 +605,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
 
-            if (urlToken === DUMMY_TOKEN) {
-                DUMMY_TOKEN = urlToken;
+            if (urlToken && urlToken === DUMMY_TOKEN) {
                 document.getElementById('content').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
                 return true;
@@ -611,8 +616,10 @@
             return false;
         }
 
-        window.onload = function () {
-            if (checkAndSetToken()) {
+        window.onload = async function () {
+            if (!checkAndSetToken()) {
+                await getTokenparams();
+            } else {
                 initdocument();
                 setupTokenRefresh();
                 drawECGGrid();
