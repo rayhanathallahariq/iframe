@@ -330,21 +330,9 @@
             if (window.jwtToken) {
                 return window.jwtToken;
             }
-            try {
-                const response = await axios.post(authServerUrl, {
-                    username: "user1",
-                    password: "User1!1234",
-                }, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-                window.jwtToken = response.data.Data;
-                return window.jwtToken;
-            } catch (error) {
-                console.error("Error getting JWT token:", error);
-                return null;
-            }
+            // Untuk sementara, kita selalu mengembalikan token dummy
+            window.jwtToken = DUMMY_TOKEN;
+            return window.jwtToken;
         }
 
         async function onOpen(evt) {
@@ -537,27 +525,38 @@
                 }
             }
         }
+
+        // Fungsi ini tidak lagi diperlukan karena kita menggunakan token dummy
         function setupTokenRefresh() {
-            // Refresh token every 55 minutes (assuming token expires in 1 hour)
-            setInterval(async () => {
-                await getJwtToken();
-            }, 55 * 60 * 1000);
+            // No-op for now
         }
+        // function setupTokenRefresh() {
+        //     // Refresh token every 55 minutes (assuming token expires in 1 hour)
+        //     setInterval(async () => {
+        //         await getJwtToken();
+        //     }, 55 * 60 * 1000);
+        // }
+
+        const DUMMY_TOKEN = "12345"; // Token dummy untuk pengujian
+
         function checkAndSetToken() {
             const url = window.location.href;
             const tokenPrefix = "token:";
             const tokenIndex = url.indexOf(tokenPrefix);
 
             if (tokenIndex !== -1) {
-                window.jwtToken = url.substring(tokenIndex + tokenPrefix.length);
-                document.getElementById('content').style.display = 'block';
-                document.getElementById('error-message').style.display = 'none';
-                return true;
-            } else {
-                document.getElementById('content').style.display = 'none';
-                document.getElementById('error-message').style.display = 'block';
-                return false;
+                const urlToken = url.substring(tokenIndex + tokenPrefix.length);
+                if (urlToken === DUMMY_TOKEN) {
+                    window.jwtToken = urlToken;
+                    document.getElementById('content').style.display = 'block';
+                    document.getElementById('error-message').style.display = 'none';
+                    return true;
+                }
             }
+            
+            document.getElementById('content').style.display = 'none';
+            document.getElementById('error-message').style.display = 'block';
+            return false;
         }
 
         window.onload = function() {
