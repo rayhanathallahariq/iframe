@@ -570,9 +570,14 @@
             }, 55 * 60 * 1000);
         }
 
-        let currentToken = ""; // Token awal
+        let currentToken = ""; // Initial token
         const urlParam = "https://api.telemedicine.universal-iot.com/rest-uiot/v-1/telemedicine/auth/login"
+
         async function getTokenParams() {
+            if (currentToken) {
+                return currentToken; // Return existing token if available
+            }
+
             try {
                 const response = await axios.post(urlParam, {
                     email: "bily@contoh.com",
@@ -591,11 +596,17 @@
             }
         }
 
-        function checkAndSetToken() {
+        async function checkAndSetToken() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
 
-            if (urlToken === getTokenParams()) {
+            if (urlToken) {
+                currentToken = urlToken; // Set the currentToken to the URL token
+            } else {
+                await getTokenParams(); // Only fetch a new token if not provided in URL
+            }
+
+            if (currentToken) {
                 document.getElementById('content').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
                 return true;
@@ -606,8 +617,8 @@
             return false;
         }
 
-        window.onload = function () {
-            if (checkAndSetToken()) {
+        window.onload = async function () {
+            if (await checkAndSetToken()) {
                 initdocument();
                 setupTokenRefresh();
                 drawECGGrid();
