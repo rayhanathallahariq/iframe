@@ -570,39 +570,14 @@
             }, 55 * 60 * 1000);
         }
 
-        const authParams = "https://api.telemedicine.universal-iot.com/rest-uiot/v-1/telemedicine/auth/login"
+        let currentToken = "12345"; 
 
-        function updateUrlWithToken() {
-            const url = new URL(window.location);
-            url.searchParams.set('token', tokenParams);
-            window.history.replaceState(null, '', url.toString());
-        }
-
-        let validToken = "";
-        async function getTokenParams() {
-            try {
-                const response = await axios.post(authParams, {
-                    email: "bily@contoh.com",
-                    password: "secret",
-                }, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-                validToken = response.data.data.token;
-                console.log("Token received:", validToken);
-                return validToken;
-            } catch (error) {
-                console.error("Error getting JWT token:", error);
-                return null;
-            }
-        }
-
+        
         function checkAndSetToken() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
 
-            if (urlToken === validToken) {
+            if (urlToken === currentToken) {
                 document.getElementById('content').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
                 return true;
@@ -614,14 +589,13 @@
         }
 
         window.onload = function () {
-            getTokenParams()
             if (checkAndSetToken()) {
                 initdocument();
                 setupTokenRefresh();
                 drawECGGrid();
             }
         };
-        
+
         function updateWaveforms() {
             if (document.hidden) {
                 for (let waveform of waveforms) {
