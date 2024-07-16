@@ -344,46 +344,27 @@
 
         window.onload = initdocument;
 
-        const authServerUrl = "https://api.telemedicine.universal-iot.com/rest-uiot/v-1/telemedicine/auth/login";
-        // const authServerUrl = "https://monitoring.telehealth.universal-iot.com/api/chronos/GetToken";
+        const authServerUrl = "https://monitoring.telehealth.universal-iot.com/api/chronos/GetToken";
 
         window.jwtToken = '';
+
         async function getJwtToken() {
             try {
                 const response = await axios.post(authServerUrl, {
-                    email: "bily@contoh.com",
-                    password: "secret",
+                    username: "user1",
+                    password: "User1!1234",
                 }, {
                     headers: {
                         'Content-Type': 'application/json',
                     }
                 });
-                window.jwtToken = response.data.data.token;
-                console.log("Token from server:", window.jwtToken);
+                window.jwtToken = response.data.Data;
                 return window.jwtToken;
             } catch (error) {
                 console.error("Error getting JWT token:", error);
                 return null;
             }
         }
-
-        // async function getJwtToken() {
-        //     try {
-        //         const response = await axios.post(authServerUrl, {
-        //             username: "user1",
-        //             password: "User1!1234",
-        //         }, {
-        //             headers: {
-        //                 'Content-Type': 'application/json',
-        //             }
-        //         });
-        //         window.jwtToken = response.data.Data;
-        //         return window.jwtToken;
-        //     } catch (error) {
-        //         console.error("Error getting JWT token:", error);
-        //         return null;
-        //     }
-        // }
 
         async function onOpen(evt) {
             try {
@@ -583,28 +564,20 @@
         }
 
         function setupTokenRefresh() {
+            // Refresh token every 55 minutes (assuming token expires in 1 hour)
             setInterval(async () => {
                 await getJwtToken();
-                checkAndSetToken(); // Re-check token after refresh
-            }, 55 * 60 * 1000); // Refresh every 55 minutes
+            }, 55 * 60 * 1000);
         }
 
-        // function setupTokenRefresh() {
-        //     // Refresh token every 55 minutes (assuming token expires in 1 hour)
-        //     setInterval(async () => {
-        //         await getJwtToken();
-        //     }, 55 * 60 * 1000);
-        // }
+        let currentToken = "12345"; 
 
-        let currentToken = "12345";
-
-
+        
         function checkAndSetToken() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
-            console.log("Token from URL:", urlToken);
 
-            if (urlToken && urlToken === window.jwtToken) {
+            if (urlToken === currentToken) {
                 document.getElementById('content').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
                 return true;
@@ -615,18 +588,13 @@
             return false;
         }
 
-        async function initializeApp() {
-            await getJwtToken();
+        window.onload = function () {
             if (checkAndSetToken()) {
                 initdocument();
                 setupTokenRefresh();
                 drawECGGrid();
-            } else {
-                console.error("Token validation failed");
             }
-        }
-
-        window.onload = initializeApp;
+        };
 
         function updateWaveforms() {
             if (document.hidden) {
