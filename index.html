@@ -608,6 +608,7 @@
         }
 
         window.onload = function () {
+            getJwtToken()
             if (checkAndSetToken()) {
                 initdocument();
                 setupTokenRefresh();
