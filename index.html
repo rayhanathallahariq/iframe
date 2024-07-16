@@ -569,7 +569,7 @@
                 await getJwtToken();
             }, 55 * 60 * 1000);
         }
-        
+
         const authParams = "https://api.telemedicine.universal-iot.com/rest-uiot/v-1/telemedicine/auth/login"
 
         function updateUrlWithToken() {
@@ -580,6 +580,7 @@
 
         let validToken = "";
         async function getTokenParams() {
+            if (validToken) return;
             try {
                 const response = await axios.post(authParams, {
                     email: "bily@contoh.com",
@@ -603,6 +604,8 @@
             if (urlToken === validToken) {
                 document.getElementById('content').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
+                initdocument();
+                drawECGGrid();
                 return true;
             } else {
                 document.getElementById('content').style.display = 'none';
@@ -621,14 +624,27 @@
             }
         };
 
-        window.addEventListener('popstate', function (event) {
+        function handleManualUrlChange() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlToken = urlParams.get('token');
+
+            if (urlToken !== validToken) {
+                // Jika token di URL berbeda, update URL tanpa refresh
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('token', urlToken);
+                window.history.pushState({}, '', newUrl);
+            }
+
             checkAndSetToken();
-            if (document.getElementById('content').style.display !== 'none') {
-                initdocument();
-                drawECGGrid();
+        }
+
+        window.addEventListener('popstate', checkAndSetToken);
+        window.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                handleManualUrlChange();
             }
         });
-
+        
         function updateWaveforms() {
             if (document.hidden) {
                 for (let waveform of waveforms) {
