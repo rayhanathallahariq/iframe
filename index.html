@@ -576,8 +576,14 @@
             url.searchParams.set('token', tokenParams);
             window.history.replaceState(null, '', url.toString());
         }
-        
-        let tokenParams = ""
+
+        function updateUrlWithValidToken() {
+            const url = new URL(window.location);
+            url.searchParams.set('token', validToken);
+            window.history.replaceState(null, '', url.toString());
+        }
+
+        let validToken = "";
         async function getTokenParams() {
             try {
                 const response = await axios.post(authParams, {
@@ -588,40 +594,36 @@
                         'Content-Type': 'application/json',
                     }
                 });
-                tokenParams = response.data.data.token;
-                console.log("Token received:", tokenParams);
-                updateUrlWithToken();
-                return tokenParams;
+                validToken = response.data.data.token;
+                console.log("Token received:", validToken);
+                updateUrlWithValidToken();
+                return validToken;
             } catch (error) {
                 console.error("Error getting JWT token:", error);
                 return null;
             }
         }
 
-        let currentToken = "12345";
-
-        async function checkAndSetToken() {
+        function checkAndSetToken() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
 
-            if (!tokenParams) {
-                await getTokenParams();
-            }
-
-            if (urlToken === tokenParams) {
+            if (urlToken === validToken) {
                 document.getElementById('content').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
                 return true;
+            } else {
+                document.getElementById('content').style.display = 'none';
+                document.getElementById('error-message').style.display = 'block';
+                return false;
             }
-
-            document.getElementById('content').style.display = 'none';
-            document.getElementById('error-message').style.display = 'block';
-            return false;
         }
 
         window.onload = async function () {
             await getTokenParams();
-            if (await checkAndSetToken()) {
+            checkAndSetToken();
+
+            if (document.getElementById('content').style.display !== 'none') {
                 initdocument();
                 setupTokenRefresh();
                 drawECGGrid();
