@@ -343,28 +343,47 @@
         }
 
         window.onload = initdocument;
-
-        const authServerUrl = "https://monitoring.telehealth.universal-iot.com/api/chronos/GetToken";
+        
+        const authServerUrl = "https://api.telemedicine.universal-iot.com/rest-uiot/v-1/telemedicine/auth/login";
+        // const authServerUrl = "https://monitoring.telehealth.universal-iot.com/api/chronos/GetToken";
 
         window.jwtToken = '';
-
         async function getJwtToken() {
             try {
                 const response = await axios.post(authServerUrl, {
-                    username: "user1",
-                    password: "User1!1234",
+                    email: "bily@contoh.com",
+                    password: "secret",
                 }, {
                     headers: {
                         'Content-Type': 'application/json',
                     }
                 });
-                window.jwtToken = response.data.Data;
+                window.jwtToken = response.data.data.token;
+                console.log(window.jwtToken);
                 return window.jwtToken;
             } catch (error) {
                 console.error("Error getting JWT token:", error);
                 return null;
             }
         }
+
+        // async function getJwtToken() {
+        //     try {
+        //         const response = await axios.post(authServerUrl, {
+        //             username: "user1",
+        //             password: "User1!1234",
+        //         }, {
+        //             headers: {
+        //                 'Content-Type': 'application/json',
+        //             }
+        //         });
+        //         window.jwtToken = response.data.Data;
+        //         return window.jwtToken;
+        //     } catch (error) {
+        //         console.error("Error getting JWT token:", error);
+        //         return null;
+        //     }
+        // }
 
         async function onOpen(evt) {
             try {
@@ -570,13 +589,13 @@
             }, 55 * 60 * 1000);
         }
 
-        let currentToken = "12345"; 
+        let currentToken = ""; 
 
         
         function checkAndSetToken() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
-
+            currentToken = window.jwtToken
             if (urlToken === currentToken) {
                 document.getElementById('content').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
