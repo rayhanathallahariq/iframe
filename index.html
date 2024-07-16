@@ -359,7 +359,7 @@
                     }
                 });
                 window.jwtToken = response.data.data.token;
-                console.log(window.jwtToken);
+                console.log("Token from server:", window.jwtToken);
                 return window.jwtToken;
             } catch (error) {
                 console.error("Error getting JWT token:", error);
@@ -583,11 +583,18 @@
         }
 
         function setupTokenRefresh() {
-            // Refresh token every 55 minutes (assuming token expires in 1 hour)
             setInterval(async () => {
                 await getJwtToken();
-            }, 55 * 60 * 1000);
+                checkAndSetToken(); // Re-check token after refresh
+            }, 55 * 60 * 1000); // Refresh every 55 minutes
         }
+
+        // function setupTokenRefresh() {
+        //     // Refresh token every 55 minutes (assuming token expires in 1 hour)
+        //     setInterval(async () => {
+        //         await getJwtToken();
+        //     }, 55 * 60 * 1000);
+        // }
 
         let currentToken = "12345";
 
@@ -595,8 +602,9 @@
         function checkAndSetToken() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
+            console.log("Token from URL:", urlToken);
 
-            if (urlToken === window.jwtToken) {
+            if (urlToken && urlToken === window.jwtToken) {
                 document.getElementById('content').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
                 return true;
@@ -607,14 +615,18 @@
             return false;
         }
 
-        window.onload = async function () {
+        async function initializeApp() {
             await getJwtToken();
             if (checkAndSetToken()) {
                 initdocument();
                 setupTokenRefresh();
                 drawECGGrid();
+            } else {
+                console.error("Token validation failed");
             }
-        };
+        }
+
+        window.onload = initializeApp;
 
         function updateWaveforms() {
             if (document.hidden) {
