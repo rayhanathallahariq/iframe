@@ -580,7 +580,6 @@
 
         let validToken = "";
         async function getTokenParams() {
-            if (validToken) return;
             try {
                 const response = await axios.post(authParams, {
                     email: "bily@contoh.com",
@@ -591,9 +590,11 @@
                     }
                 });
                 validToken = response.data.data.token;
-                console.log("Valid token received:", validToken);
+                console.log("Token received:", validToken);
+                return validToken;
             } catch (error) {
                 console.error("Error getting JWT token:", error);
+                return null;
             }
         }
 
@@ -604,46 +605,22 @@
             if (urlToken === validToken) {
                 document.getElementById('content').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
-                initdocument();
-                drawECGGrid();
                 return true;
-            } else {
-                document.getElementById('content').style.display = 'none';
-                document.getElementById('error-message').style.display = 'block';
-                return false;
             }
+
+            document.getElementById('content').style.display = 'none';
+            document.getElementById('error-message').style.display = 'block';
+            return false;
         }
 
-        window.onload = async function () {
-            await getTokenParams();
-            checkAndSetToken();
-
-            if (document.getElementById('content').style.display !== 'none') {
+        window.onload = function () {
+            getTokenParams()
+            if (checkAndSetToken()) {
                 initdocument();
+                setupTokenRefresh();
                 drawECGGrid();
             }
         };
-
-        function handleManualUrlChange() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const urlToken = urlParams.get('token');
-
-            if (urlToken !== validToken) {
-                // Jika token di URL berbeda, update URL tanpa refresh
-                const newUrl = new URL(window.location);
-                newUrl.searchParams.set('token', urlToken);
-                window.history.pushState({}, '', newUrl);
-            }
-
-            checkAndSetToken();
-        }
-
-        window.addEventListener('popstate', checkAndSetToken);
-        window.addEventListener('keydown', function (event) {
-            if (event.key === 'Enter') {
-                handleManualUrlChange();
-            }
-        });
         
         function updateWaveforms() {
             if (document.hidden) {
