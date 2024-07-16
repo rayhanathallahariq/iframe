@@ -570,11 +570,17 @@
             }, 55 * 60 * 1000);
         }
         const authParams = "https://api.telemedicine.universal-iot.com/rest-uiot/v-1/telemedicine/auth/login"
+
+        function updateUrlWithToken() {
+            const url = new URL(window.location);
+            url.searchParams.set('token', tokenParams);
+            window.history.replaceState(null, '', url.toString());
+        }
         
         let tokenParams = ""
         async function getTokenParams() {
             try {
-                const response = await axios.post(authServerUrl, {
+                const response = await axios.post(authParams, {
                     email: "bily@contoh.com",
                     password: "secret",
                 }, {
@@ -583,7 +589,8 @@
                     }
                 });
                 tokenParams = response.data.data.token;
-                console.log(tokenParams);
+                console.log("Token received:", tokenParams);
+                updateUrlWithToken();
                 return tokenParams;
             } catch (error) {
                 console.error("Error getting JWT token:", error);
@@ -591,13 +598,17 @@
             }
         }
 
-        let currentToken = "12345"; 
+        let currentToken = "12345";
 
-        function checkAndSetToken() {
+        async function checkAndSetToken() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
 
-            if (urlToken === currentToken) {
+            if (!tokenParams) {
+                await getTokenParams();
+            }
+
+            if (urlToken === tokenParams) {
                 document.getElementById('content').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
                 return true;
@@ -608,8 +619,9 @@
             return false;
         }
 
-        window.onload = function () {
-            if (checkAndSetToken()) {
+        window.onload = async function () {
+            await getTokenParams();
+            if (await checkAndSetToken()) {
                 initdocument();
                 setupTokenRefresh();
                 drawECGGrid();
