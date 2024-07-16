@@ -569,6 +569,7 @@
                 await getJwtToken();
             }, 55 * 60 * 1000);
         }
+        
         const authParams = "https://api.telemedicine.universal-iot.com/rest-uiot/v-1/telemedicine/auth/login"
 
         function updateUrlWithToken() {
@@ -590,10 +591,8 @@
                 });
                 validToken = response.data.data.token;
                 console.log("Valid token received:", validToken);
-                return validToken;
             } catch (error) {
                 console.error("Error getting JWT token:", error);
-                return null;
             }
         }
 
@@ -618,10 +617,17 @@
 
             if (document.getElementById('content').style.display !== 'none') {
                 initdocument();
-                setupTokenRefresh();
                 drawECGGrid();
             }
         };
+
+        window.addEventListener('popstate', function (event) {
+            checkAndSetToken();
+            if (document.getElementById('content').style.display !== 'none') {
+                initdocument();
+                drawECGGrid();
+            }
+        });
 
         function updateWaveforms() {
             if (document.hidden) {
