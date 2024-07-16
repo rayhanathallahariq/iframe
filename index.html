@@ -577,12 +577,6 @@
             window.history.replaceState(null, '', url.toString());
         }
 
-        function updateUrlWithValidToken() {
-            const url = new URL(window.location);
-            url.searchParams.set('token', validToken);
-            window.history.replaceState(null, '', url.toString());
-        }
-
         let validToken = "";
         async function getTokenParams() {
             try {
@@ -595,8 +589,7 @@
                     }
                 });
                 validToken = response.data.data.token;
-                console.log("Token received:", validToken);
-                updateUrlWithValidToken();
+                console.log("Valid token received:", validToken);
                 return validToken;
             } catch (error) {
                 console.error("Error getting JWT token:", error);
