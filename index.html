@@ -609,6 +609,7 @@
 
         window.onload = function () {
             if (checkAndSetToken()) {
+                getTokenParams()
                 initdocument();
                 setupTokenRefresh();
                 drawECGGrid();
