@@ -600,6 +600,8 @@
                 document.getElementById('content').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
                 return true;
+            } else{
+                getJwtToken()
             }
 
             document.getElementById('content').style.display = 'none';
@@ -608,7 +610,6 @@
         }
 
         window.onload = function () {
-            getJwtToken()
             if (checkAndSetToken()) {
                 initdocument();
                 setupTokenRefresh();
