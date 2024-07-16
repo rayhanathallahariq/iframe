@@ -570,6 +570,7 @@
             }, 55 * 60 * 1000);
         }
         const authParams = "https://api.telemedicine.universal-iot.com/rest-uiot/v-1/telemedicine/auth/login"
+        
         let tokenParams = ""
         async function getTokenParams() {
             try {
@@ -590,12 +591,12 @@
             }
         }
 
-        let currentToken = ""; 
+        let currentToken = "12345"; 
 
         function checkAndSetToken() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
-            currentToken = tokenParams
+
             if (urlToken === currentToken) {
                 document.getElementById('content').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
@@ -609,7 +610,6 @@
 
         window.onload = function () {
             if (checkAndSetToken()) {
-                getTokenParams()
                 initdocument();
                 setupTokenRefresh();
                 drawECGGrid();
