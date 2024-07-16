@@ -343,7 +343,7 @@
         }
 
         window.onload = initdocument;
-        
+
         const authServerUrl = "https://api.telemedicine.universal-iot.com/rest-uiot/v-1/telemedicine/auth/login";
         // const authServerUrl = "https://monitoring.telehealth.universal-iot.com/api/chronos/GetToken";
 
@@ -589,19 +589,17 @@
             }, 55 * 60 * 1000);
         }
 
-        let currentToken = ""; 
+        let currentToken = "12345";
 
-        
+
         function checkAndSetToken() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
-            currentToken = window.jwtToken
-            if (urlToken === currentToken) {
+
+            if (urlToken === window.jwtToken) {
                 document.getElementById('content').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
                 return true;
-            } else{
-                getJwtToken()
             }
 
             document.getElementById('content').style.display = 'none';
@@ -609,7 +607,8 @@
             return false;
         }
 
-        window.onload = function () {
+        window.onload = async function () {
+            await getJwtToken();
             if (checkAndSetToken()) {
                 initdocument();
                 setupTokenRefresh();
