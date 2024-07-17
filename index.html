@@ -370,7 +370,7 @@
             try {
                 await getJwtToken();
                 if (window.jwtToken) {
-                    let arg = 2123 + "," + 55975275 + "," + 0 + "," + window.jwtToken;
+                    let arg = `2123,54585963,01234567,${window.jwtToken}`
                     doSend(arg);
                 } else {
                     console.error("Failed to get JWT token");
