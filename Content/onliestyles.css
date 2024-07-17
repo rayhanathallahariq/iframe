@@ -60,12 +60,7 @@
     position: relative;
     justify-content: stretch;
 }
-.grid-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1;
-}
+
 .waveform-title{
     float: left;
     margin: 5px;
@@ -98,30 +93,8 @@
     border-top: 1px solid grey;
 
     display: flex;
-    flex-direction: column;
     position: relative;
     justify-content: stretch;
-}
-
-.parameter-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 5px;
-}
-
-.patient-info {
-    display: flex;
-    flex-direction: column;
-    font-size: 0.8em;
-    color: #666;
-}
-
-.info-item {
-    margin-bottom: 2px;
-    margin: 5px;
-    font-size: 16px;
-    
 }
 
 .parameter-title{
@@ -134,15 +107,6 @@
 .parameter-value{
     position: absolute;
     top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    margin: 5px;
-
-    font-size: 36px;
-}
-.parameter-valueHR{
-    position: absolute;
-    top: 5%;
     left: 50%;
     transform: translate(-50%, -50%);
     margin: 5px;
@@ -166,7 +130,12 @@
     position: relative;
     justify-content: stretch;
 }
-
+.grid-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
 .settings-container{
     width: 5%;
     height: 100%;
