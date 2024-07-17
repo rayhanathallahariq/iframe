@@ -1,11 +1,9 @@
-
 class EcgWaveform {
-    constructor(canvas, color, maxValue, step,verticalOffset = 0) {
+    constructor(canvas, color, maxValue, step){
         this.canvas = canvas;
         this.color = color;
         this.maxValue = maxValue;
         this.step = step;
-        this.verticalOffset = verticalOffset;
 
         this.context = this.canvas.getContext("2d");
         this.context.strokeStyle = this.color;
@@ -17,15 +15,15 @@ class EcgWaveform {
     }
     clear() {
         this.prevPointX = 0;
-        // curPointX = 0;
+       // curPointX = 0;
         this.context.beginPath();
-        this.context.fillRect(0, 0, this.canvas.width - 50, this.canvas.height);
+        this.context.fillRect(0, 0, this.canvas.width-50, this.canvas.height);
         this.context.stroke();
     }
-    add(yValue) {
+    add(yValue){
         var curPointX = this.prevPointX + this.step;
 
-        if (curPointX >= (this.canvas.width - 50)) {
+        if(curPointX >= (this.canvas.width-50)){
             this.prevPointX = 0;
             curPointX = 0;
 
@@ -33,17 +31,17 @@ class EcgWaveform {
             this.context.fillRect(0, 0, 5, this.canvas.height);
             this.context.stroke();
         }
-        else {
-            var curPointY = this.canvas.height - (yValue * this.canvas.height / this.maxValue + this.verticalOffset);
+        else{
+            var curPointY = this.canvas.height - yValue * this.canvas.height / this.maxValue;
             curPointY = curPointY * 0.98;
             this.context.lineWidth = 2;
             this.context.beginPath();
-
+            
             this.context.fillRect(curPointX, 0, 5, this.canvas.height);
-
+            
             this.context.moveTo(this.prevPointX, this.prevPointY);
             this.context.lineTo(curPointX, curPointY);
-
+            
             this.context.stroke();
         }
 
@@ -58,7 +56,7 @@ class EcgWaveform {
             return;
         }
         else {
-            var curPointY = this.canvas.height - (yValue * this.canvas.height / this.maxValue + this.verticalOffset);
+            var curPointY = this.canvas.height - yValue * this.canvas.height / this.maxValue;
             curPointY = curPointY * 0.98;
             this.context.lineWidth = 2;
             this.context.beginPath();
@@ -75,8 +73,8 @@ class EcgWaveform {
         this.prevPointY = curPointY;
     }
 
-    addArray(arr) {
-        while (arr.length > 0) {
+    addArray(arr){
+        while(arr.length > 0){
             this.add(arr.shift());
         }
     }
