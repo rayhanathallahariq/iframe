@@ -370,10 +370,7 @@
             try {
                 await getJwtToken();
                 if (window.jwtToken) {
-                    let deviceCode = `2123`;
-                    let random = `54585963`;
-                    let patientCode = `0`;
-                    let arg = `${deviceCode},${random},${patientCode},${window.jwtToken}`
+                    let arg = `2123,54585963,0,${window.jwtToken}`
                     doSend(arg);
                 } else {
                     console.error("Failed to get JWT token");
@@ -573,9 +570,9 @@
             }, 55 * 60 * 1000);
         }
 
-        let currentToken = "12345";
+        let currentToken = "12345"; 
 
-
+        
         function checkAndSetToken() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
