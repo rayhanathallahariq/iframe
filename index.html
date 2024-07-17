@@ -8,12 +8,12 @@
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <meta content="IE=edge" http-equiv="X-UA-Compatible">
 
-    <link rel="stylesheet" href="/Content/style2.css" />
-    <link rel="stylesheet" href="/Content/jquery-ui.css" />
-    <link rel="stylesheet" href="/Content/plugins/bootstrap-datepicker.min.css" />
-    <link rel="stylesheet" href="/Content/plugins/fileinput.min.css" />
-    <link rel="stylesheet" href="/Content/site.min.css" />
-    <link rel="stylesheet" href="/Content/onliestyles.css" />
+    <link rel="stylesheet" href="./Content/style2.css" />
+    <link rel="stylesheet" href="./Content/jquery-ui.css" />
+    <link rel="stylesheet" href="./Content/plugins/bootstrap-datepicker.min.css" />
+    <link rel="stylesheet" href="./Content/plugins/fileinput.min.css" />
+    <link rel="stylesheet" href="./Content/site.min.css" />
+    <link rel="stylesheet" href="./Content/onliestyles.css" />
 
     <script src="/Scripts/libs/modernizr-2.8.3.min.js"></script>
 
@@ -49,217 +49,219 @@
         </section>
     </div>
 
-    <div id="content" style="display: none;"></div>
-    <div>
-        <!-- Dialogs
+    <div id="content" style="display: none;">
+        <div>
+            <!-- Dialogs
         ================================================== -->
-        <div class="row">
-            <div class="col-md-12 ">
+            <div class="row">
+                <div class="col-md-12 ">
 
 
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <div class="row">
-                            <div class="col-md-15">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <div class="row">
                                 <div class="col-md-15">
-                                    <div class="container-online">
-                                        <div class="waveform-box">
-                                            <div class="row">
-                                                <span class="waveform-title ecg-color" id="param_name"
-                                                    style="margin-left:20px"> Name:---</span>
-                                                <span class="waveform-title ecg-color" id="param_code"
-                                                    style="margin-left:20px"> Code:---</span>
-                                                <span class="waveform-title ecg-color" id="param_wires"
-                                                    style="margin-left:20px"> Wires:---</span>
-                                                <span class="waveform-title ecg-color" id="param_lead"
-                                                    style="margin-left:20px">Master lead:---</span>
-                                                <span class="waveform-title ecg-color" id="param_notch"
-                                                    style="margin-left:20px">Notch filter:---</span>
-                                                <span class="waveform-title ecg-color" id="param_pace"
-                                                    style="margin-left:20px">Pace:---</span>
-                                                <span class="waveform-title ecg-color" id="param_gain"
-                                                    style="margin-left:20px">Gain:10 mm/mV</span>
-                                                <span class="waveform-title ecg-color" id="param_speed"
-                                                    style="margin-left:20px">Speed: 25 mm/s</span>
+                                    <div class="col-md-15">
+                                        <div class="container-online">
+                                            <div class="waveform-box">
+                                                <div class="row">
+                                                    <span class="waveform-title ecg-color" id="param_name"
+                                                        style="margin-left:20px"> Name:---</span>
+                                                    <span class="waveform-title ecg-color" id="param_code"
+                                                        style="margin-left:20px"> Code:---</span>
+                                                    <span class="waveform-title ecg-color" id="param_wires"
+                                                        style="margin-left:20px"> Wires:---</span>
+                                                    <span class="waveform-title ecg-color" id="param_lead"
+                                                        style="margin-left:20px">Master lead:---</span>
+                                                    <span class="waveform-title ecg-color" id="param_notch"
+                                                        style="margin-left:20px">Notch filter:---</span>
+                                                    <span class="waveform-title ecg-color" id="param_pace"
+                                                        style="margin-left:20px">Pace:---</span>
+                                                    <span class="waveform-title ecg-color" id="param_gain"
+                                                        style="margin-left:20px">Gain:10 mm/mV</span>
+                                                    <span class="waveform-title ecg-color" id="param_speed"
+                                                        style="margin-left:20px">Speed: 25 mm/s</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="col-md-15">
+                                <div class="col-md-15">
 
-                                <div class="container-online">
+                                    <div class="container-online">
 
-                                    <div class="waveforms-container">
-                                        <div class="waveform-box">
-                                            <span class="waveform-title ecg-color">Lead I</span>
-                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
-                                            <canvas class="waveform" id="waveform-ecg1" width="1400px"
-                                                height="185px"></canvas>
-                                        </div>
-                                        <div class="waveform-box">
-                                            <span class="waveform-title ecg-color">Lead 2</span>
-                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
-                                            <canvas class="waveform" id="waveform-ecg2" width="1400px"
-                                                height="185px"></canvas>
-                                        </div>
-                                        <div class="waveform-box">
-                                            <span class="waveform-title ecg-color">Lead 3</span>
-                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
-                                            <canvas class="waveform" id="waveform-ecg3" width="1400px"
-                                                height="185px"></canvas>
-                                        </div>
-                                        <div class="waveform-box">
-                                            <span class="waveform-title ecg-color">Lead AVR</span>
-                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
-                                            <canvas class="waveform" id="waveform-avr" width="1400px"
-                                                height="185px"></canvas>
-                                        </div>
-                                        <div class="waveform-box">
-                                            <span class="waveform-title ecg-color">Lead AVL</span>
-                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
-                                            <canvas class="waveform" id="waveform-avl" width="1400px"
-                                                height="185px"></canvas>
-                                        </div>
-                                        <div class="waveform-box">
-                                            <span class="waveform-title ecg-color">Lead AVF</span>
-                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
-                                            <canvas class="waveform" id="waveform-avf" width="1400px"
-                                                height="185px"></canvas>
-                                        </div>
-                                    </div>
-
-                                    <div class="waveforms-container">
-                                        <div class="waveform-box">
-                                            <span class="waveform-title ecg-color">Lead V1</span>
-                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
-                                            <canvas class="waveform" id="waveform-v1" width="1400px"
-                                                height="185px"></canvas>
-                                        </div>
-                                        <div class="waveform-box">
-                                            <span class="waveform-title ecg-color">Lead V2</span>
-                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
-                                            <canvas class="waveform" id="waveform-v2" width="1400px"
-                                                height="185px"></canvas>
-                                        </div>
-                                        <div class="waveform-box">
-                                            <span class="waveform-title ecg-color">Lead V3</span>
-                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
-                                            <canvas class="waveform" id="waveform-v3" width="1400px"
-                                                height="185px"></canvas>
-                                        </div>
-                                        <div class="waveform-box">
-                                            <span class="waveform-title ecg-color">Lead V4</span>
-                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
-                                            <canvas class="waveform" id="waveform-v4" width="1400px"
-                                                height="185px"></canvas>
-                                        </div>
-                                        <div class="waveform-box">
-                                            <span class="waveform-title ecg-color">Lead V5</span>
-                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
-                                            <canvas class="waveform" id="waveform-v5" width="1400px"
-                                                height="185px"></canvas>
-                                        </div>
-                                        <div class="waveform-box">
-                                            <span class="waveform-title ecg-color">Lead V6</span>
-                                            <canvas class="grid-canvas" width="840px" height="150px"></canvas>
-                                            <canvas class="waveform" id="waveform-v6" width="1400px"
-                                                height="185px"></canvas>
-                                        </div>
-                                    </div>
-
-                                    <div class="parameters-container">
-                                        <div class="parameter-box">
-                                            <div class="parameter-header">
-                                                <span class="parameter-title ecg-color">HR(bpm)</span>
-                                                <span class="parameter-valueHR ecg-color"
-                                                    id="parameter-heart-rate">---</span>
+                                        <div class="waveforms-container">
+                                            <div class="waveform-box">
+                                                <span class="waveform-title ecg-color">Lead I</span>
+                                                <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                                <canvas class="waveform" id="waveform-ecg1" width="1400px"
+                                                    height="185px"></canvas>
                                             </div>
-                                            <div class="patient-info">
-                                                <span class="info-item ecg-color" id="device-code">Device Code:
-                                                    ---</span>
-                                                <span class="info-item ecg-color" id="patient-age">Age: ---</span>
-                                                <span class="info-item ecg-color" id="patient-name">Patient
-                                                    ---</span>
-                                                <span class="info-item ecg-color" id="patient-age">Age: ---</span>
-                                                <span class="info-item ecg-color" id="patient-gender">Gender:
-                                                    ---</span>
-                                                <span class="info-item ecg-color"
-                                                    id="patient-national-code">National
-                                                    Code:
-                                                    ---</span>
+                                            <div class="waveform-box">
+                                                <span class="waveform-title ecg-color">Lead 2</span>
+                                                <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                                <canvas class="waveform" id="waveform-ecg2" width="1400px"
+                                                    height="185px"></canvas>
+                                            </div>
+                                            <div class="waveform-box">
+                                                <span class="waveform-title ecg-color">Lead 3</span>
+                                                <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                                <canvas class="waveform" id="waveform-ecg3" width="1400px"
+                                                    height="185px"></canvas>
+                                            </div>
+                                            <div class="waveform-box">
+                                                <span class="waveform-title ecg-color">Lead AVR</span>
+                                                <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                                <canvas class="waveform" id="waveform-avr" width="1400px"
+                                                    height="185px"></canvas>
+                                            </div>
+                                            <div class="waveform-box">
+                                                <span class="waveform-title ecg-color">Lead AVL</span>
+                                                <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                                <canvas class="waveform" id="waveform-avl" width="1400px"
+                                                    height="185px"></canvas>
+                                            </div>
+                                            <div class="waveform-box">
+                                                <span class="waveform-title ecg-color">Lead AVF</span>
+                                                <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                                <canvas class="waveform" id="waveform-avf" width="1400px"
+                                                    height="185px"></canvas>
                                             </div>
                                         </div>
 
-                                        <div class="parameter-box">
-                                            <span class="parameter-title nibp-color">NIBP(mmHg)</span>
-                                            <span class="parameter-value2 nibp-color"
-                                                id="parameter-nibp">---/---(---)</span>
+                                        <div class="waveforms-container">
+                                            <div class="waveform-box">
+                                                <span class="waveform-title ecg-color">Lead V1</span>
+                                                <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                                <canvas class="waveform" id="waveform-v1" width="1400px"
+                                                    height="185px"></canvas>
+                                            </div>
+                                            <div class="waveform-box">
+                                                <span class="waveform-title ecg-color">Lead V2</span>
+                                                <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                                <canvas class="waveform" id="waveform-v2" width="1400px"
+                                                    height="185px"></canvas>
+                                            </div>
+                                            <div class="waveform-box">
+                                                <span class="waveform-title ecg-color">Lead V3</span>
+                                                <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                                <canvas class="waveform" id="waveform-v3" width="1400px"
+                                                    height="185px"></canvas>
+                                            </div>
+                                            <div class="waveform-box">
+                                                <span class="waveform-title ecg-color">Lead V4</span>
+                                                <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                                <canvas class="waveform" id="waveform-v4" width="1400px"
+                                                    height="185px"></canvas>
+                                            </div>
+                                            <div class="waveform-box">
+                                                <span class="waveform-title ecg-color">Lead V5</span>
+                                                <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                                <canvas class="waveform" id="waveform-v5" width="1400px"
+                                                    height="185px"></canvas>
+                                            </div>
+                                            <div class="waveform-box">
+                                                <span class="waveform-title ecg-color">Lead V6</span>
+                                                <canvas class="grid-canvas" width="840px" height="150px"></canvas>
+                                                <canvas class="waveform" id="waveform-v6" width="1400px"
+                                                    height="185px"></canvas>
+                                            </div>
                                         </div>
 
-                                        <div class="parameter-box">
-                                            <span class="parameter-title spo2-color">SpO2(%)</span>
-                                            <span class="parameter-value spo2-color" id="parameter-spo2">---</span>
-                                        </div>
+                                        <div class="parameters-container">
+                                            <div class="parameter-box">
+                                                <div class="parameter-header">
+                                                    <span class="parameter-title ecg-color">HR(bpm)</span>
+                                                    <span class="parameter-valueHR ecg-color"
+                                                        id="parameter-heart-rate">---</span>
+                                                </div>
+                                                <div class="patient-info">
+                                                    <span class="info-item ecg-color" id="device-code">Device Code:
+                                                        ---</span>
+                                                    <span class="info-item ecg-color" id="patient-age">Age: ---</span>
+                                                    <span class="info-item ecg-color" id="patient-name">Patient
+                                                        ---</span>
+                                                    <span class="info-item ecg-color" id="patient-age">Age: ---</span>
+                                                    <span class="info-item ecg-color" id="patient-gender">Gender:
+                                                        ---</span>
+                                                    <span class="info-item ecg-color"
+                                                        id="patient-national-code">National
+                                                        Code:
+                                                        ---</span>
+                                                </div>
+                                            </div>
 
-                                        <div class="parameter-box">
-                                            <span class="parameter-title spo2-color">PR(bpm)</span>
-                                            <span class="parameter-value spo2-color"
-                                                id="parameter-pulse-rate">---</span>
-                                        </div>
+                                            <div class="parameter-box">
+                                                <span class="parameter-title nibp-color">NIBP(mmHg)</span>
+                                                <span class="parameter-value2 nibp-color"
+                                                    id="parameter-nibp">---/---(---)</span>
+                                            </div>
 
-                                        <div class="parameter-box">
-                                            <span class="parameter-title temperature-color">Temp1(°C)</span>
-                                            <span class="parameter-value temperature-color"
-                                                id="parameter-temperature1">---</span>
-                                        </div>
+                                            <div class="parameter-box">
+                                                <span class="parameter-title spo2-color">SpO2(%)</span>
+                                                <span class="parameter-value spo2-color" id="parameter-spo2">---</span>
+                                            </div>
 
-                                        <div class="parameter-box">
-                                            <span class="parameter-title temperature-color">Temp2(°C)</span>
-                                            <span class="parameter-value temperature-color"
-                                                id="parameter-temperature2">---</span>
-                                        </div>
+                                            <div class="parameter-box">
+                                                <span class="parameter-title spo2-color">PR(bpm)</span>
+                                                <span class="parameter-value spo2-color"
+                                                    id="parameter-pulse-rate">---</span>
+                                            </div>
 
-                                        <div class="parameter-box">
-                                            <span class="parameter-title resp-color">RESP(brpm)</span>
-                                            <span class="parameter-value resp-color"
-                                                id="parameter-resp-rate">---</span>
+                                            <div class="parameter-box">
+                                                <span class="parameter-title temperature-color">Temp1(°C)</span>
+                                                <span class="parameter-value temperature-color"
+                                                    id="parameter-temperature1">---</span>
+                                            </div>
+
+                                            <div class="parameter-box">
+                                                <span class="parameter-title temperature-color">Temp2(°C)</span>
+                                                <span class="parameter-value temperature-color"
+                                                    id="parameter-temperature2">---</span>
+                                            </div>
+
+                                            <div class="parameter-box">
+                                                <span class="parameter-title resp-color">RESP(brpm)</span>
+                                                <span class="parameter-value resp-color"
+                                                    id="parameter-resp-rate">---</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+
                 </div>
-
-
             </div>
         </div>
+        <div class="modal  fade in" id="modal" tabindex="-1" data-keyboard="false" data-backdrop="static" role="dialog"
+            aria-hidden="true">
+        </div>
     </div>
-    <div class="modal  fade in" id="modal" tabindex="-1" data-keyboard="false" data-backdrop="static" role="dialog"
-        aria-hidden="true">
-    </div>
-    </div>
-    <script src="/Scripts/jquery-1.12.4.js"></script>
-    <script src="/Scripts/libs/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="./Scripts/jquery-1.12.4.js"></script>
+    <script src="./Scripts/libs/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 
-    <script src="/Scripts/libs/bootstrap.min.js"></script>
-    <script src="/Scripts/libs/respond.min.js"></script>
-    <script src="/Scripts/plugins/jquery.noty.packaged.min.js"></script>
-    <script src="/Scripts/plugins/jquery.dlmenu.min.js"></script>
-    <script src="/Scripts/plugins/masonry.pkgd.min.js"></script>
-    <script src="/Scripts/plugins/jquery.mvc.deleteItem.min.js"></script>
-    <script src="/Scripts/plugins/jquery.mvc.asyncLoad.min.js"></script>
-    <script src="/Scripts/plugins/jquery.mvc.scan.min.js"></script>
-    <script src="/Scripts/plugins/jquery.mvc.getJson.min.js"></script>
-    <script src="/Scripts/customs/noty.alerts.min.js"></script>
-    <script src="/Scripts/customs/ajax.methods.min.js"></script>
-    <script src="/Scripts/plugins/fileinput.min.js"></script>
-    <script src="/Scripts/plugins/jquery.farsiInput.min.js"></script>
-    <script src="/Scripts/customs/site.min.js"></script>
-    <script src="/Scripts/online/ecg-waveform.js"></script>
+    <script src="./Scripts/libs/bootstrap.min.js"></script>
+    <script src="./Scripts/libs/respond.min.js"></script>
+    <script src="./Scripts/plugins/jquery.noty.packaged.min.js"></script>
+    <script src="./Scripts/plugins/jquery.dlmenu.min.js"></script>
+    <script src="./Scripts/plugins/masonry.pkgd.min.js"></script>
+    <script src="./Scripts/plugins/jquery.mvc.deleteItem.min.js"></script>
+    <script src="./Scripts/plugins/jquery.mvc.asyncLoad.min.js"></script>
+    <script src="./Scripts/plugins/jquery.mvc.scan.min.js"></script>
+    <script src="./Scripts/plugins/jquery.mvc.getJson.min.js"></script>
+    <script src="./Scripts/customs/noty.alerts.min.js"></script>
+    <script src="./Scripts/customs/ajax.methods.min.js"></script>
+    <script src="./Scripts/plugins/fileinput.min.js"></script>
+    <script src="./Scripts/plugins/jquery.farsiInput.min.js"></script>
+    <script src="./Scripts/customs/site.min.js"></script>
+    <script src="./Scripts/online/ecg-waveform.js"></script>
+
     <script>
         const waveformECG1 = new EcgWaveform(document.getElementById('waveform-ecg1'), 'green', 1900, 0.6, 25);
         const waveformECG2 = new EcgWaveform(document.getElementById('waveform-ecg2'), 'green', 1900, 0.6, 25);
@@ -328,19 +330,19 @@
             return (e.returnValue = 'Are you sure you want to close?')
         })
 
-        function initdocument() {
-
+        async function initdocument() {
             var wsUri = "wss://monitoring.telehealth.universal-iot.com:443/web";
             websocket = new WebSocket(wsUri);
-            websocket.onopen = function (evt) { onOpen(evt) };
-            websocket.onclose = function (evt) { onClose(evt) };
-            websocket.onmessage = function (evt) { onMessage(evt) };
-            websocket.onerror = function (evt) { onError(evt) };
+            websocket.onopen = onOpen;
+            websocket.onclose = onClose;
+            websocket.onmessage = onMessage;
+            websocket.onerror = onError;
 
-            // alert(wsUri)
             setInterval(updateWaveforms, 40);
             setInterval(aliveHandShake, 10000);
         }
+
+        window.onload = initdocument;
 
         const authServerUrl = "https://monitoring.telehealth.universal-iot.com/api/chronos/GetToken";
 
@@ -437,6 +439,7 @@
         }
         function onMessage(evt) {
             const obj = JSON.parse(evt.data);
+            console.log(obj);
             if (lastOrder == -1 || obj.Order == 0) {
                 lastOrder = obj.Order
             }
@@ -470,6 +473,11 @@
                 paramTemperature2.innerHTML = (obj.T2 === '') ? '---.-' : obj.T2;
                 param_name.innerHTML = obj.PatientName;
                 param_code.innerHTML = obj.PatientNationalId;
+                document.getElementById('patient-name').textContent = 'Name: ' + (obj.PatientName || '---');
+                document.getElementById('patient-age').textContent = 'Age: ' + (obj.PatientAge || '---');
+                document.getElementById('patient-gender').textContent = 'Gender: ' + (obj.PatientGender || '---');
+                document.getElementById('patient-national-code').textContent = 'National Code: ' + (obj.PatientNationalId || '---');
+                document.getElementById('device-code').textContent = 'Device Code: ' + (obj.DeviceCode || '---');
 
             }
             else {
@@ -534,21 +542,37 @@
         }
 
         function doSend(message) {
+            // alert("SENT: " + message);
             websocket.send(message);
         }
 
-        function aliveHandShake() {
+        async function aliveHandShake() {
             if (websocket == null) {
-                initdocument();
+                await initdocument();
+            } else {
+                if (window.jwtToken) {
+                    websocket.send("Hi," + window.jwtToken);
+                } else {
+                    await getJwtToken();
+                    if (window.jwtToken) {
+                        websocket.send("Hi," + window.jwtToken);
+                    } else {
+                        console.error("Failed to get JWT token for aliveHandShake");
+                    }
+                }
             }
-            else
-                websocket.send("Hi");
         }
+
         function setupTokenRefresh() {
+            // Refresh token every 55 minutes (assuming token expires in 1 hour)
             setInterval(async () => {
                 await getJwtToken();
             }, 55 * 60 * 1000);
         }
+
+        let currentToken = "12345"; 
+
+        
         function checkAndSetToken() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
@@ -594,7 +618,13 @@
 
 
     </script>
+
     <style>
+        /*======================
+    404 page
+=======================*/
+
+
         .page_404 {
             padding: 40px 0;
             background: #fff;
