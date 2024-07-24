@@ -1,3 +1,4 @@
+
 class EcgWaveform {
     constructor(canvas, color, maxValue, step){
         this.canvas = canvas;
