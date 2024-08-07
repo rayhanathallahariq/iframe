@@ -41,8 +41,6 @@
                                 </h3>
 
                                 <p>the page you are looking for not avaible!</p>
-                                <button class="btn"> Generate Token
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -179,14 +177,16 @@
                                                         id="parameter-heart-rate">---</span>
                                                 </div>
                                                 <div class="patient-info">
-                                                    <span class="info-item ecg-color" id="device_code">Device Code:
+                                                    <span class="info-item ecg-color" id="device-code">Device Code:
                                                         ---</span>
-                                                    <span class="info-item ecg-color" id="patient_age">Age: ---</span>
-                                                    <span class="info-item ecg-color" id="patient_name">Patient
+                                                    <span class="info-item ecg-color" id="patient-age">Age: ---</span>
+                                                    <span class="info-item ecg-color" id="patient-name">Patient
                                                         ---</span>
-                                                    <span class="info-item ecg-color" id="patient_gender">Gender: </span>
+                                                    <span class="info-item ecg-color" id="patient-age">Age: ---</span>
+                                                    <span class="info-item ecg-color" id="patient-gender">Gender:
+                                                        ---</span>
                                                     <span class="info-item ecg-color"
-                                                        id="patient_national_code">National
+                                                        id="patient-national-code">National
                                                         Code:
                                                         ---</span>
                                                 </div>
@@ -286,11 +286,6 @@
 
         const param_name = document.getElementById('param_name');
         const param_code = document.getElementById('param_code');
-        const device_code = document.getElementById('device_code');
-        const patient_age = document.getElementById('patient_age');
-        const patient_name = document.getElementById('patient_name');
-        const patient_gender = document.getElementById('patient_gender');
-        const patient_national_code = document.getElementById('patient_national_code');
 
         const param_wires = document.getElementById('param_wires');
         const param_lead = document.getElementById('param_lead');
@@ -372,10 +367,17 @@
         }
 
         async function onOpen(evt) {
-            await getJwtToken();
             try {
-                let arg = 2123 + "," + 55975275 + "," + 0 + "," + window.jwtToken;
-                doSend(arg);
+                if (window.jwtToken) {
+                    let deviceCode = window.deviceCode || "";
+                    let random = "55975275";
+                    let patientId = window.patientId || "";
+                    let arg = `${deviceCode},${random},${patientId},${window.jwtToken}`;
+                    console.log(arg);
+                    doSend(arg);
+                } else {
+                    console.error("No JWT token available");
+                }
             } catch (error) {
                 console.error("Error in onOpen:", error);
             }
@@ -440,6 +442,7 @@
         }
         function onMessage(evt) {
             const obj = JSON.parse(evt.data);
+            console.log(obj);
             if (lastOrder == -1 || obj.Order == 0) {
                 lastOrder = obj.Order
             }
@@ -473,11 +476,11 @@
                 paramTemperature2.innerHTML = (obj.T2 === '') ? '---.-' : obj.T2;
                 param_name.innerHTML = obj.PatientName;
                 param_code.innerHTML = obj.PatientNationalId;
-                document.getElementById('patient-name').textContent = 'Patient ' + (obj.PatientName || '---');
+                document.getElementById('patient-name').textContent = 'Name: ' + (obj.PatientName || '---');
                 document.getElementById('patient-age').textContent = 'Age: ' + (obj.PatientAge || '---');
                 document.getElementById('patient-gender').textContent = 'Gender: ' + (obj.PatientGender || '---');
                 document.getElementById('patient-national-code').textContent = 'National Code: ' + (obj.PatientNationalId || '---');
-                // document.getElementById('device-code').textContent = 'Device Code: ' + (obj.DeviceCode || '---');
+                document.getElementById('device-code').textContent = 'Device Code: ' + (obj.DeviceCode || '---');
 
             }
             else {
@@ -487,13 +490,6 @@
                 // param_gain.innerHTML = (obj.EcgWires === '') ? '---' : obj.EcgWires;
                 // param_speed.innerHTML = (obj.Speed === '') ? '---' : obj.Speed;
                 param_lead.innerHTML = (obj.MasterLead === '') ? 'Master lead:---' : obj.MasterLead;
-                param_name.innerHTML = (obj.PatientName === '') ? 'Name:---' : obj.PatientName;
-                param_code.innerHTML = (obj.PatientNationalId === '') ? 'Code:---' : obj.PatientNationalId;
-                device_code.innerHTML = (obj.DeviceCode === '') ? 'Code:---' : obj.DeviceCode;
-                patient_age.innerHTML = (obj.PatientAge === '') ? 'Age: ---' : obj.PatientAge;
-                patient_name.innerHTML = (obj.PatientName === '') ? 'Patient' : obj.PatientName;
-                patient_gender.innerHTML = (obj.PatientGender === '') ? 'Gender: ---' : obj.PatientGender;
-                patient_national_code.innerHTML = (obj.PatientNationalId === '') ? 'Gender: ---' : obj.PatientNationalId;
 
 
                 paramHeartRate.innerHTML = (obj.Hr === '') ? '---' : obj.Hr;
@@ -560,67 +556,64 @@
                 if (window.jwtToken) {
                     websocket.send("Hi," + window.jwtToken);
                 } else {
-                    await getJwtToken();
-                    if (window.jwtToken) {
-                        websocket.send("Hi," + window.jwtToken);
-                    } else {
-                        console.error("Failed to get JWT token for aliveHandShake");
-                    }
+                    console.error("No JWT token available for aliveHandShake");
                 }
             }
         }
 
-        function setupTokenRefresh() {
-            // Refresh token every 55 minutes (assuming token expires in 1 hour)
-            setInterval(async () => {
-                await getJwtToken();
-            }, 55 * 60 * 1000);
-        }
-        function generateUniqueId() {
-            return Math.random().toString(36).substr(2, 16);
-        }
-
-        document.querySelector('#error-message .btn').addEventListener('click', function () {
-            const newToken = generateTelehealthCookie();
-            currentToken = newToken.split('=')[1]; 
-            const newUrl = `${window.location.origin}${window.location.pathname}?token=${currentToken}`;
-            window.history.replaceState({}, '', newUrl);
-            console.log(currentToken);
-            if (checkAndSetToken()) {
-                initdocument();
-                setupTokenRefresh();
-                drawECGGrid();
-                updateWaveforms();
+        async function validateToken(token) {
+            try {
+                const response = await axios.post(
+                    'http://34.128.110.88:3009/api/v1/iframe/validate-token',
+                    {},
+                    {
+                        headers: {
+                            'Authorization': 'Basic a29tZW46bGFsYXBvcG8xMjM=',
+                            'x-api-key': token,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+                console.log(response);
+                if (response.data.data.status === true) {
+                    return {
+                        isValid: true,
+                        deviceCode: response.data.data.rows.DeviceCode,
+                        patientId: response.data.data.rows.PatientNationalId
+                    };
+                } else {
+                    return { isValid: false };
+                }
+            } catch (error) {
+                console.error('Error validating token:', error);
+                return { isValid: false };
             }
-        });
-
-        function generateTelehealthCookie() {
-            const uniqueId = generateUniqueId();
-            const cookieString = `id_telehealth=${uniqueId}`;
-            return cookieString;
         }
-        let currentToken = "";
 
-        function checkAndSetToken() {
+        async function checkAndSetToken() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
 
-            if (urlToken === currentToken) {
-                document.getElementById('content').style.display = 'block';
-                document.getElementById('error-message').style.display = 'none';
-                return true;
+            if (urlToken) {
+                const validation = await validateToken(urlToken);
+                if (validation.isValid) {
+                    window.jwtToken = urlToken;
+                    window.deviceCode = validation.deviceCode;
+                    window.patientId = validation.patientId;
+                    document.getElementById('content').style.display = 'block';
+                    document.getElementById('error-message').style.display = 'none';
+                    return true;
+                }
             }
 
             document.getElementById('content').style.display = 'none';
             document.getElementById('error-message').style.display = 'block';
-            document.querySelector('#error-message .btn').style.display = 'inline-block';
             return false;
         }
 
-        window.onload = function () {
-            if (checkAndSetToken()) {
+        window.onload = async function () {
+            if (await checkAndSetToken()) {
                 initdocument();
-                setupTokenRefresh();
                 drawECGGrid();
             }
         };
@@ -690,46 +683,6 @@
 
         .contant_box_404 {
             margin-top: -50px;
-        }
-
-        /*Button*/
-        .btn {
-            width: 8em;
-            height: 2.3em;
-            margin: 0.5em;
-            background: black;
-            color: white;
-            border: none;
-            border-radius: 0.625em;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            position: relative;
-            z-index: 1;
-            overflow: hidden;
-        }
-
-        button:hover {
-            color: rgb(255, 187, 0);
-        }
-
-        button:after {
-            content: "";
-            background: orange;
-            position: absolute;
-            z-index: -1;
-            left: -20%;
-            right: -20%;
-            top: 0;
-            bottom: 0;
-            transform: skewX(-45deg) scale(0, 1);
-            transition: all 0.5s;
-        }
-
-        button:hover:after {
-            transform: skewX(-45deg) scale(1, 1);
-            -webkit-transition: all 0.5s;
-            transition: all 0.5s;
         }
     </style>
 </body>
