@@ -442,7 +442,7 @@
         }
         function onMessage(evt) {
             const obj = JSON.parse(evt.data);
-            console.log(obj);
+            // console.log(obj);
             if (lastOrder == -1 || obj.Order == 0) {
                 lastOrder = obj.Order
             }
@@ -561,10 +561,10 @@
             }
         }
 
-        async function validateToken(token) {
+        async function validateToken(token, telehealthId) {
             try {
                 const response = await axios.post(
-                    'http://34.128.110.88:3009/api/v1/iframe/validate-token',
+                    `https://api.telehealth.universal-iot.com/api/v1/iframe/validate-token?telehealth_id=${telehealthId}`,
                     {},
                     {
                         headers: {
@@ -590,29 +590,38 @@
             }
         }
 
-        async function checkAndSetToken() {
+        async function checkTokenAndTelehealthId() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
+            const telehealthId = urlParams.get('telehealth_id');
 
-            if (urlToken) {
-                const validation = await validateToken(urlToken);
-                if (validation.isValid) {
-                    window.jwtToken = urlToken;
-                    window.deviceCode = validation.deviceCode;
-                    window.patientId = validation.patientId;
-                    document.getElementById('content').style.display = 'block';
-                    document.getElementById('error-message').style.display = 'none';
-                    return true;
+            if (urlToken && telehealthId) {
+                try {
+                    const validation = await validateToken(urlToken, telehealthId);
+                    if (validation.isValid) {
+                        window.jwtToken = await getJwtToken();
+                        window.deviceCode = validation.deviceCode;
+                        window.patientId = validation.patientId;
+
+                        document.getElementById('content').style.display = 'block';
+                        document.getElementById('error-message').style.display = 'none';
+                        return true;
+                    }
+                } catch (error) {
+                    console.error('Error during token validation:', error);
                 }
             }
 
             document.getElementById('content').style.display = 'none';
             document.getElementById('error-message').style.display = 'block';
+            if (!telehealthId) {
+                alert('telehealth_id is missing');
+            }
             return false;
         }
 
         window.onload = async function () {
-            if (await checkAndSetToken()) {
+            if (await checkTokenAndTelehealthId()) {
                 initdocument();
                 drawECGGrid();
             }
