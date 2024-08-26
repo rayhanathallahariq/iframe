@@ -579,7 +579,8 @@
                     return {
                         isValid: true,
                         deviceCode: response.data.data.rows.DeviceCode,
-                        patientId: response.data.data.rows.PatientNationalId
+                        patientId: response.data.data.rows.PatientNationalId,
+                        telehealthId: response.data.data.rows.Telehealth_id
                     };
                 } else {
                     return { isValid: false };
@@ -589,16 +590,15 @@
                 return { isValid: false };
             }
         }
-
         async function checkTokenAndTelehealthId() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
-            const telehealthId = urlParams.get('telehealth_id');
+            const urlTelehealthId = urlParams.get('telehealth_id');
 
-            if (urlToken && telehealthId) {
+            if (urlToken && urlTelehealthId) {
                 try {
-                    const validation = await validateToken(urlToken, telehealthId);
-                    if (validation.isValid) {
+                    const validation = await validateToken(urlToken, urlTelehealthId);
+                    if (validation.isValid && validation.telehealthId === urlTelehealthId) {
                         window.jwtToken = await getJwtToken();
                         window.deviceCode = validation.deviceCode;
                         window.patientId = validation.patientId;
@@ -606,6 +606,8 @@
                         document.getElementById('content').style.display = 'block';
                         document.getElementById('error-message').style.display = 'none';
                         return true;
+                    } else {
+                        console.error('Token validation failed or Telehealth ID mismatch');
                     }
                 } catch (error) {
                     console.error('Error during token validation:', error);
@@ -614,8 +616,10 @@
 
             document.getElementById('content').style.display = 'none';
             document.getElementById('error-message').style.display = 'block';
-            if (!telehealthId) {
+            if (!urlTelehealthId) {
                 alert('telehealth_id is missing');
+            } else {
+                alert('Invalid token or Telehealth ID mismatch');
             }
             return false;
         }
